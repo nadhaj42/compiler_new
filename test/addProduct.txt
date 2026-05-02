@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>إضافة منتج</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f7f7f7; direction:rtl; }
+        .navbar { background:#333; color:#fff; display:flex; justify-content:space-between; padding:10px 20px; }
+        .nav-links a { color:#fff; text-decoration:none; margin-left:15px; }
+        .nav-links a:hover { text-decoration:underline; }
+        .page { padding:30px; }
+        .product-form { background:#fff; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); max-width:500px; margin:auto; }
+        .form-group { margin-bottom:15px; }
+        .form-group label { display:block; margin-bottom:5px; font-weight:bold; }
+        .form-group input, .form-group textarea { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:5px; }
+        .btn-submit { background:#28a745; color:#fff; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; }
+        .btn-submit:hover { background:#218838; }
+        .message { color:red; margin-top:10px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">متجري</div>
+        <div class="nav-links">
+            <a href="/add">إضافة منتج</a>
+            <a href="/view">عرض المنتجات</a>
+        </div>
+    </nav>
+
+    <div class="page">
+        <div class="product-form">
+            <h1>إضافة منتج جديد</h1>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="product_name">اسم المنتج</label>
+                    <input type="text" name="product_name" id="product_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">السعر</label>
+                    <input type="number" name="price" id="price" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">الوصف</label>
+                    <textarea name="description" id="description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image_url">رابط الصورة</label>
+                    <input type="text" name="image_url" id="image_url">
+                </div>
+                <button type="submit" class="btn-submit">إضافة المنتج</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

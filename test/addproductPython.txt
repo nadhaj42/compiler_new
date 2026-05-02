@@ -1,0 +1,9 @@
+products = []  # global list to store products
+
+def add_product(name, price, details, image):
+    products.append([name, price, details, image])
+
+# Example usage:
+add_product("iPhone 16", 55000, "Latest model 2025", "iphone16.jpg")
+add_product("PlayStation 5", 28000, "Slim edition", "ps5.jpg")
+

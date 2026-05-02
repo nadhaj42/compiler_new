@@ -1,0 +1,8 @@
+def show_all_products():
+    print("All Products:")
+    for p in products:
+        print("-", p[0])
+    print("---")
+
+# Example usage:
+show_all_products()
