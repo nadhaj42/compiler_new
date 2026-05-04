@@ -1,12 +1,12 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
 import AST.Python.Statement.Expr.Expr;
 
-public class ListIndex extends Primary {
-    public Primary prinary;
+public class ListIndex extends Operation {
+    public Test prinary;
     public Expr expr;
 
-    public ListIndex(Primary prinary, Expr expr, int line) {
+    public ListIndex(Test prinary, Expr expr, int line) {
         super("ListIndex", line);
         this.prinary = prinary;
         this.expr = expr;

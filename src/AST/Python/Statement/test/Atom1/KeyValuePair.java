@@ -1,4 +1,4 @@
-package AST.Python.Statement.Primary.Atom1;
+package AST.Python.Statement.test.Atom1;
 
 import AST.Python.PythonNode;
 import AST.Python.Statement.Expr.Expr;

@@ -1,6 +1,8 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
-public abstract class Atom extends Primary {
+import AST.Python.PythonNode;
+
+public abstract class Atom extends PythonNode {
     public Atom(String nameNode, int line) {
         super(nameNode, line);
     }

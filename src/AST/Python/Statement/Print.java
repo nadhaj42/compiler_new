@@ -1,6 +1,6 @@
 package AST.Python.Statement;
 
-import AST.Python.Statement.Primary.ArgumentList;
+import AST.Python.Statement.test.ArgumentList;
 
 public class Print extends  Statement{
 

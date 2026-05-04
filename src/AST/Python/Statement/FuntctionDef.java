@@ -1,6 +1,6 @@
 package AST.Python.Statement;
 
-import AST.Python.Statement.Primary.Atom1.Variable;
+import AST.Python.Statement.test.Atom1.Variable;
 
 public class FuntctionDef extends  Statement {
 

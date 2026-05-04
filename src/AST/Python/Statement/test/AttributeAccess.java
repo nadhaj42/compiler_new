@@ -1,12 +1,12 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
-import AST.Python.Statement.Primary.Atom1.Variable;
+import AST.Python.Statement.test.Atom1.Variable;
 
-public class AttributeAccess extends Primary {
-    public Primary prinary;
+public class AttributeAccess extends Operation {
+    public Test prinary;
     public Variable var;
 
-    public AttributeAccess(Primary prinary, Variable var, int line) {
+    public AttributeAccess(Test prinary, Variable var, int line) {
         super("AttributeAccess", line);
         this.prinary = prinary;
         this.var = var;

@@ -1,4 +1,4 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
 import AST.Python.PythonNode;
 

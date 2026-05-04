@@ -1,8 +1,8 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
 import AST.Python.PythonNode;
 import AST.Python.Statement.Expr.Expr;
-import AST.Python.Statement.Primary.Atom1.Variable;
+import AST.Python.Statement.test.Atom1.Variable;
 
 public class Argument extends PythonNode {
     public Expr expr;

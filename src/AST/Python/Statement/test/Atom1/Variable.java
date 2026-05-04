@@ -1,6 +1,6 @@
-package AST.Python.Statement.Primary.Atom1;
+package AST.Python.Statement.test.Atom1;
 
-import AST.Python.Statement.Primary.Atom;
+import AST.Python.Statement.test.Atom;
 
 public class Variable extends Atom {
     public String name;

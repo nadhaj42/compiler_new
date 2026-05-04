@@ -23,7 +23,7 @@
 // suite: (NEWLINE)* INDENT (statement | NEWLINE)* DEDENT;
 //
 // // ... باقي القواعد كما هي في الكود السابق ...
-//decorator_stmt: AT primary (OPEN_B arg_list? CLOSE_B)? NEWLINE statement;
+//decorator_stmt: AT test (OPEN_B arg_list? CLOSE_B)? NEWLINE statement;
 //func_def: DEF VARIABLE OPEN_B param_list? CLOSE_B COLON suite;
 //if_stmt: IF expr COLON suite (elif_clause)* (else_clause)?;
 //elif_clause: ELIF expr COLON suite;
@@ -38,7 +38,7 @@
 //import_stmt: (FROM path)? IMPORT path (COMMA path)* (NEWLINE | EOF);
 //path: (VARIABLE | DOT)+;
 //
-//assign_stmt: primary (NEWLINE)* ASSIGN (NEWLINE)* expr (NEWLINE | EOF);
+//assign_stmt: test (NEWLINE)* ASSIGN (NEWLINE)* expr (NEWLINE | EOF);
 //return_stmt: RETURN expr? (NEWLINE | EOF);
 //expr_stmt: expr (NEWLINE | EOF);
 //
@@ -46,7 +46,7 @@
 //
 //expr
 //    : or_test                                            #logicalExpr
-//    | primary FOR VARIABLE IN primary (IF expr)?         #listComprehension
+//    | test FOR VARIABLE IN test (IF expr)?         #listComprehension
 //    ;
 //
 //or_test: and_test (OR (NEWLINE)* and_test)*;
@@ -68,16 +68,16 @@
 //
 //factor
 //    : (PLUS | MINUS) factor                             #unaryExpr
-//    | primary                                           #toPrimary
+//    | test                                           #toPrimary
 //    ;
 //
 //// --------------------------------------------------
 //
-//primary
+//test
 //    : atom                                      #atomExprPrimary
-//    | primary DOT VARIABLE                      #attributeAccess
-//    | primary OPEN_B arg_list? CLOSE_B          #functionCall
-//    | primary LBRACK expr RBRACK                #listIndex
+//    | test DOT VARIABLE                      #attributeAccess
+//    | test OPEN_B arg_list? CLOSE_B          #functionCall
+//    | test LBRACK expr RBRACK                #listIndex
 //    ;
 //
 //atom

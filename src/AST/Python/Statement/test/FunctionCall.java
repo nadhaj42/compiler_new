@@ -1,11 +1,11 @@
-package AST.Python.Statement.Primary;
+package AST.Python.Statement.test;
 
-public class FunctionCall extends Primary {
+public class FunctionCall extends Operation {
 
-    public Primary prinary;
+    public Test prinary;
     public ArgumentList argumentList = null;
 
-    public FunctionCall(Primary prinary, ArgumentList argumentList, int line) {
+    public FunctionCall(Test prinary, ArgumentList argumentList, int line) {
         super("FunctionCall", line);
         this.prinary = prinary;
         this.argumentList = argumentList;
