@@ -15,7 +15,8 @@ public class MulDiv extends Logical{
     }
 
     public String toString() {
-        String message = super.toString() + "{start MulDiv\n" + left.toString() + "\n" +  op + "\n" + right.toString() + "\nend MulDiv\n}";
+        String message = super.toString() + "{\nstart MulDiv\n" + left.toString() + "\n" +  op + "\n" + right.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

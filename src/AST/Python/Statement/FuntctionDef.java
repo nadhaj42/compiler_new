@@ -16,10 +16,10 @@ public class FuntctionDef extends  Statement {
     }
 
     public String toString() {
-        String message = super.toString() + "{start FuntctionDef\n" + variable.toString() + "\n";
+        String message = super.toString() + "{\nstart FuntctionDef\n" + variable.toString() + "\n";
         if (parameters != null){
                 message += parameters.toString() + "\n";}
-        message += statement.toString()+"end FuntctionDef\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

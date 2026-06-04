@@ -13,12 +13,12 @@ public class DistLiteral extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start DistLiteral\n";
+        String message = super.toString() + "{\nstart DistLiteral\n";
         if (elements != null) {
             for (KeyValuePair element : elements)
                 message += element.toString() + "\n";
         }
-        message += "end DistLiteral}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

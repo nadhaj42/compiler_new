@@ -11,7 +11,8 @@ public class FloatLiteral extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Float\n"+ value + "\nend Float\n}";
+        String message = super.toString() + "{\nstart Float\n"+ value + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

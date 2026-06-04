@@ -5,7 +5,7 @@ import AST.Python.Statement.Suite;
 
 import java.util.List;
 
-public abstract class Test extends PythonNode {
+public  class Test extends PythonNode {
     public Atom atom;
     public List<Operation> operations;
 
@@ -15,11 +15,11 @@ public abstract class Test extends PythonNode {
         this.operations = operations;
     }
     public String toString() {
-        String message = super.toString() + "{start Test\n"+atom.toString()+"\n";
+        String message = super.toString() + "{\nstart Test\n"+atom.toString()+"\n";
         if (operations != null){
             for (PythonNode statement : operations)
                 message += statement.toString() + "\n";}
-        message += "end Test}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

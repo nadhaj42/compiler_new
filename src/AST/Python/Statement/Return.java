@@ -11,10 +11,10 @@ public class Return extends Statement{
     }
 
     public String toString() {
-        String message = super.toString() + "{start Return\n";
+        String message = super.toString() + "{\nstart Return\n";
         if (expr != null){
             message += expr.toString() + "\n";}
-        message += "end Return\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

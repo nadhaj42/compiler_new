@@ -13,9 +13,9 @@ public class While extends Statement{
     }
 
     public String toString() {
-        String message = super.toString() + "{start While\n";
+        String message = super.toString() + "{\nstart While\n";
         message += expr.toString() + "\n;";
-        message +=statement.toString()+ "\nend While\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

@@ -11,7 +11,8 @@ public class Number extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Number\n"+ value + "\nend Number\n}";
+        String message = super.toString() + "{\nstart Number\n"+ value + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

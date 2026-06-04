@@ -1,25 +1,34 @@
 package AST.html_css_jinja.css;
 
+import AST.html_css_jinja.ContentNode;
 import AST.html_css_jinja.Node;
+import AST.html_css_jinja.html.HtmlAttributeNode;
 
 import java.util.List;
 
 public class CssDeclaration extends Node {
-    public Node property;
-    public List<Node> value;
+    public  String property;
+    public  List<CssValueNode> values;
 
-    public CssDeclaration( int line,Node property, List<Node> value) {
-        super("CssDeclaration",line);
+    public CssDeclaration(String property, List<CssValueNode> values, int line) {
+        super("CssDeclaration", line);
         this.property = property;
-        this.value = value;
+        this.values = values;
     }
 
     public String toString() {
-        String message=super.toString()+"{\n"+property.toString()+"\n(";
-        if (value!=null)
-            for (Node statement : value)
-                message += statement.toString() + "\n";
-        message += "}\n";
+        String message = super.toString() + "{\nstart CssDeclaration\n";
+        message += property + "\n";
+
+        if (values != null) {
+            message += "attributes {\n";
+            for (CssValueNode stmt : values)
+                message += stmt.toString() + "\n";
+            message += "}\n";
+        }
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }
+
+

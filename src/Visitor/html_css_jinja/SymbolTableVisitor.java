@@ -1,3 +1,4 @@
+/*
 package Visitor.html_css_jinja;
 
 import AST.html_css_jinja.Node;
@@ -107,4 +108,4 @@ public class SymbolTableVisitor {
         }
         return 0;
     }
-}
+}*/

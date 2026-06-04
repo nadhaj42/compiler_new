@@ -14,7 +14,8 @@ public class KeyValuePair extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start KeyValuePair\n" +key.toString() +"\n"+value.toString() + "\nend KeyValuePair\n}";
+        String message = super.toString() + "{\nstart KeyValuePair\n" +key.toString() +"\n"+value.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

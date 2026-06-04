@@ -17,10 +17,10 @@ public class With extends Statement{
     }
 
     public String toString() {
-        String message = super.toString() + "{start With\n" + expr.toString() + "\n";
+        String message = super.toString() + "{\nstart With\n" + expr.toString() + "\n";
         if (variable != null)
             message += variable.toString() + "\n;";
-        message +=statement.toString()+ "\nend With\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

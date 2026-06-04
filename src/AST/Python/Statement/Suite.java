@@ -12,11 +12,11 @@ public class Suite extends Statement {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Suite\n";
+        String message = super.toString() + "{\nstart Suite\n";
         if (statements != null){
             for (Statement element : statements)
                 message += element.toString() + "\n";}
-        message += "end Suite}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

@@ -15,12 +15,12 @@ public class ListLiteral extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start ListLiteral\n";
+        String message = super.toString() + "{\nstart ListLiteral\n";
         if (elements != null) {
             for (PythonNode element : elements)
                 message += element.toString() + "\n";
         }
-        message += "end ListLiteral}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

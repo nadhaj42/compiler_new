@@ -13,7 +13,8 @@ public class Or extends Logical {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Or\n" +left.toString() +"\n"+right.toString() + "\nend Or\n}";
+        String message = super.toString() + "{\nstart Or\n" +left.toString() +"\n"+right.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

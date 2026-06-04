@@ -20,12 +20,12 @@ public class Primary extends Logical {
 
     @Override
     public String toString() {
-        String message = super.toString() + "{start Primary\n" + atom.toString() + "\n";
+        String message = super.toString() + "{\nstart Primary\n" + atom.toString() + "\n";
         if (operations != null) {
             for (Operation op : operations)
                 message += op.toString() + "\n";
         }
-        message += "end Primary}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

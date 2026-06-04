@@ -11,7 +11,8 @@ public class StringLiteral extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start StringLiteral\n"+ value + "\nend StringLiteral\n}";
+        String message = super.toString() + "{\nstart StringLiteral\n"+ value + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

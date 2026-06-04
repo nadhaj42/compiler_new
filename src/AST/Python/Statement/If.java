@@ -27,7 +27,7 @@ public class If extends Statement{
 
     @Override
     public String toString() {
-        String message = super.toString() + "{start If\n";
+        String message = super.toString() + "{\nstart If\n";
         message += condition.toString() + "\n";
 
         message += "then {\n";
@@ -49,7 +49,7 @@ public class If extends Statement{
             message += "}\n";
         }
 
-        message += "end If}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

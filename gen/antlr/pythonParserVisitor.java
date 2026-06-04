@@ -1,7 +1,6 @@
 // Generated from E:/compiler_new/src/antlr/pythonParser.g4 by ANTLR 4.13.2
 package antlr;
 
-package antlr;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

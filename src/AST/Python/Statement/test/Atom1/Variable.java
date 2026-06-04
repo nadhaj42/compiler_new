@@ -11,7 +11,8 @@ public class Variable extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Variable\n"+ name + "\nend Variable\n}";
+        String message = super.toString() + "{\nstart Variable\n"+ name + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

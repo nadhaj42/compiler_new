@@ -12,12 +12,12 @@ public class FunctionCall extends Operation {
     }
 
     public String toString() {
-        String message = super.toString() + "{start FunctionCall\n";
+        String message = super.toString() + "{\nstart FunctionCall\n";
         if (prinary != null)
             message += prinary.toString() + "\n";
         if (argumentList != null)
             message += argumentList.toString() + "\n";
-        message += "end FunctionCall\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

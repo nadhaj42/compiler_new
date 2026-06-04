@@ -26,13 +26,13 @@ public class ListComprehension extends Logical {
     @Override
     public String toString() {
         String message = super.toString()
-                + "{start ListComprehension\n"
+                + "{\nstart ListComprehension\n"
                 + "element: " + element.toString()
                 + "variable: " + variable.toString()
                 + "iterable: " + iterable.toString();
         if (condition != null)
             message += "condition: " + condition.toString();
-        message += "end ListComprehension}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

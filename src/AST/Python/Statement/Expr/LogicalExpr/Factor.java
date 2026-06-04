@@ -16,10 +16,11 @@ public class Factor extends Logical {
     public String toString() {
         // الـ operator قبل الـ operand
         String message = super.toString()
-                + "{start Factor\n"
+                + "{\nstart Factor\n"
                 + op + "\n"           // ← op أولاً
                 + index.toString()
                 + "\nend Factor\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

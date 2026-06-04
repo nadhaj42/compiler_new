@@ -14,10 +14,10 @@ public class ElseIf extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start ElseIf\n" + expr.toString() + "\n";
+        String message = super.toString() + "{\nstart ElseIf\n" + expr.toString() + "\n";
         if (statements != null){
             message += statements.toString() + "\n";}
-        message +="end ElseIf\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

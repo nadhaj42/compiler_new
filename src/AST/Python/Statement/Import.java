@@ -12,7 +12,7 @@ public class Import extends Statement {
         this.imports = imports;
     }
     public String toString() {
-        String message = super.toString() + "{start Import\n";
+        String message = super.toString() + "{\nstart Import\n";
         if (forpath != null)
             message += forpath.toString() + "\n;";
         if (imports != null) {
@@ -21,7 +21,7 @@ public class Import extends Statement {
                     message += element.toString() + "\n";
             }
         }
-        message += "end Import\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

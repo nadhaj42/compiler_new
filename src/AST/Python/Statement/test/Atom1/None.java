@@ -8,7 +8,8 @@ public class None extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start None\n"+ "None" + "\nend None\n}";
+        String message = super.toString() + "{\nstart None\n"+ "None" + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

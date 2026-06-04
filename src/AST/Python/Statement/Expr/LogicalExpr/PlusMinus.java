@@ -15,7 +15,8 @@ public class PlusMinus extends Logical {
     }
 
     public String toString() {
-        String message = super.toString() + "{start PlusMinus\n" + left.toString()+ "\n"  + op + "\n" + right.toString() + "\nend PlusMinus\n}";
+        String message = super.toString() + "{\nstart PlusMinus\n" + left.toString()+ "\n"  + op + "\n" + right.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

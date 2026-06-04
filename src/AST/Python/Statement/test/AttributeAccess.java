@@ -13,10 +13,11 @@ public class AttributeAccess extends Operation {
     }
 
     public String toString() {
-        String message = super.toString() + "{start AttributeAccess\n";
+        String message = super.toString() + "{\nstart AttributeAccess\n";
         if (prinary != null)
             message += prinary.toString() + "\n";
-        message += var.toString() + "\nend AttributeAccess\n}";
+        message += var.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

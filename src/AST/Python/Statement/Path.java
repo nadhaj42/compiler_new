@@ -13,11 +13,11 @@ public class Path extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Path\n";
+        String message = super.toString() + "{\nstart Path\n";
         if (elements != null){
             for (Variable element : elements)
                 message += element.toString() + "\n";}
-        message += "end Path}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

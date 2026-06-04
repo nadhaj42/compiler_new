@@ -12,11 +12,11 @@ public class Else extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Else\n";
+        String message = super.toString() + "{\nstart Else\n";
         if (statements != null){
             for (Suite statement : statements)
                 message += statement.toString() + "\n";}
-        message += "end Else}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

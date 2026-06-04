@@ -15,12 +15,12 @@ public class ArgumentList extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start ArgumentList\n"+argument.toString()+"\n";
+        String message = super.toString() + "{\nstart ArgumentList\n"+argument.toString()+"\n";
         if (elements != null) {
             for (Argument element : elements)
                 message += element.toString() + "\n";
         }
-        message += "end ArgumentList}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

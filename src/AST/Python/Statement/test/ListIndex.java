@@ -13,10 +13,11 @@ public class ListIndex extends Operation {
     }
 
     public String toString() {
-        String message = super.toString() + "{start ListIndex\n";
+        String message = super.toString() + "{\nstart ListIndex\n";
         if (prinary != null)
             message += prinary.toString() + "\n";
-        message += expr.toString() + "\nend ListIndex\n}";
+        message += expr.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

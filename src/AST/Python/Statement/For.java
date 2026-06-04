@@ -17,9 +17,10 @@ public class For extends Statement {
     }
 
     public String toString() {
-        String message = super.toString() + "{start For\n" + variable.toString() + "\n";
+        String message = super.toString() + "{\nstart For\n" + variable.toString() + "\n";
             message += expr.toString() + "\n;";
-        message +=statement.toString()+ "\nend For\n";
+        message +=statement.toString()+"\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

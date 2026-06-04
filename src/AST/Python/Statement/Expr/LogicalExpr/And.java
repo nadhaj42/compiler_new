@@ -13,7 +13,8 @@ public class And extends Logical{
     }
 
     public String toString() {
-        String message = super.toString() + "{start And\n" +left.toString() +"\n"+right.toString() + "\nend And\n}";
+        String message = super.toString() + "{start And\n" +left.toString() +"\n"+right.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

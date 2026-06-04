@@ -14,11 +14,11 @@ public class Program extends Node {
 
     @Override
     public String toString() {
-        String message=super.toString()+"{\n";
+        String message="{\n"+super.toString();
        if(statements.size()!=0)
            for(Node statement:statements)
                message+=statement.toString()+"\n";
-       message+="}\n";
+        message += "}\nend"+super.toString()+"\n";
              return message;
     }
 }

@@ -11,7 +11,8 @@ public class Boolean extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Boolean\n"+ value + "\nend Boolean\n}";
+        String message = super.toString() + "{\nstart Boolean\n"+ value + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

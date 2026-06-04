@@ -21,7 +21,8 @@ public class Decortator extends  Statement{
         String message = super.toString() + "{start Decortator\n" + prinary.toString() + "\n";
         if (argumentList != null)
             message += argumentList.toString() + "\n;";
-        message += statement.toString()+"end Decortator\n}";
+        message += statement.toString()+"\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 

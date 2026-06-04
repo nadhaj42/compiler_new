@@ -15,11 +15,12 @@ public class Assignment extends Statement {
 
     public String toString() {
         String message = super.toString()
-                + "{start Assignment\n"
+                + "{\nstart Assignment\n"
                 + test.toString()
                 + "\n"
                 + expr.toString()
-                + "\nend Assignment\n}";
+                + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

@@ -12,10 +12,10 @@ public class Print extends  Statement{
     }
 
     public String toString() {
-        String message = super.toString() + "{start Print\n";
+        String message = super.toString() + "{\nstart Print\n";
         if (variables != null){
             message += variables.toString() + "\n";}
-        message += "end Print\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

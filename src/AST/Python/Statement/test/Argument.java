@@ -15,11 +15,11 @@ public class Argument extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Argument\n";
+        String message = super.toString() + "{\nstart Argument\n";
         if (var != null)
             message += var.toString() + "\n";
         message += expr.toString() + "\n";
-        message += "end Argument\n}";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

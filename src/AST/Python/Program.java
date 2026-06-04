@@ -15,11 +15,11 @@ public class Program extends PythonNode {
 
     @Override
     public String toString() {
-        String message = super.toString() + "{start program\n";
+        String message = super.toString() + "{\nstart program\n";
         if (statements != null){
             for (PythonNode statement : statements)
                 message += statement.toString() + "\n";}
-        message += "end program}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

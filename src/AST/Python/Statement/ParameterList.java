@@ -12,11 +12,11 @@ public class ParameterList extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start ParameterList\n";
+        String message = super.toString() + "{\nstart ParameterList\n";
         if (parameters != null){
             for (Parameter element : parameters)
                 message += element.toString() + "\n";}
-        message += "end ParameterList}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

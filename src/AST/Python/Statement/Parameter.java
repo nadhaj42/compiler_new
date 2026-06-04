@@ -16,10 +16,10 @@ public class Parameter extends PythonNode {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Parameter\n" + variable.toString() + "\n";
+        String message = super.toString() + "{\nstart Parameter\n" + variable.toString() + "\n";
         if (expr != null)
             message += expr.toString() + "\n;";
-        message += "end Parameter\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

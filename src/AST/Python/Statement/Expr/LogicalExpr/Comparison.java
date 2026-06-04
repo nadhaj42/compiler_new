@@ -15,7 +15,8 @@ public class Comparison extends Logical {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Comparison\n" + left.toString()  + "\n" +  op + "\n" + right.toString() + "\nend Comparison\n}";
+        String message = super.toString() + "{start Comparison\n" + left.toString()  + "\n" +  op + "\n" + right.toString() + "\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }

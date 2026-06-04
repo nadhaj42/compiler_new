@@ -11,9 +11,12 @@ public class Not extends Logical {
     }
 
     public String toString() {
-        return super.toString()
-                + "{start Not\n"
+      String message= super.toString()
+                + "{\nstart Not\n"
                 + operand.toString()
-                + "\nend Not\n}";
+                + "\n";
+        message += "}\nend"+super.toString()+"\n";
+        return message;
+
     }
 }

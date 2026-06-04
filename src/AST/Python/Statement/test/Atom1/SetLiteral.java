@@ -13,11 +13,11 @@ public class SetLiteral extends Atom {
     }
 
     public String toString() {
-        String message = super.toString() + "{start SetLiteral\n";
+        String message = super.toString() + "{\nstart SetLiteral\n";
         if (elements != null){
             for (Expr element : elements)
                 message += element.toString() + "\n";}
-        message += "end SetLiteral}\n";
+        message += "}\nend"+super.toString()+"\n";
         return message;
     }
 }
