@@ -1,15 +1,16 @@
 package AST.Python.Statement;
 
 import AST.Python.Statement.test.ArgumentList;
-import AST.Python.Statement.test.Test;
+import AST.Python.Statement.test.Primary;
+
 
 public class Decortator extends  Statement{
 
-    public Test prinary;
+    public Primary prinary;
     public ArgumentList argumentList = null;
     public Statement statement;
 
-    public Decortator(Test prinary, ArgumentList argumentList, Statement statement, int line) {
+    public Decortator(Primary prinary, ArgumentList argumentList, Statement statement, int line) {
         super("Decortator", line);
         this.prinary = prinary;
         this.argumentList = argumentList;

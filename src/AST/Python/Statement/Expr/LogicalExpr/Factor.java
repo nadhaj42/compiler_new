@@ -14,7 +14,12 @@ public class Factor extends Logical {
     }
 
     public String toString() {
-        String message = super.toString() + "{start Factor\n" + index.toString() +"\n"+ op + "\nend Factor\n}";
+        // الـ operator قبل الـ operand
+        String message = super.toString()
+                + "{start Factor\n"
+                + op + "\n"           // ← op أولاً
+                + index.toString()
+                + "\nend Factor\n}";
         return message;
     }
 }

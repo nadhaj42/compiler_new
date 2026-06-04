@@ -4,7 +4,7 @@ import AST.Python.PythonNode;
 
 import java.util.List;
 
-public class Suite extends PythonNode {
+public class Suite extends Statement {
     public List<Statement> statements;
     public Suite(int line,List<Statement> statements) {
         super("Suite",line);

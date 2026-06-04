@@ -2,10 +2,10 @@ package AST.Python.Statement.test.Atom1;
 
 import AST.Python.Statement.test.Atom;
 
-public class Float extends Atom {
+public class FloatLiteral extends Atom {
     public float value;
 
-    public Float(float value, int line) {
+    public FloatLiteral(float value, int line) {
         super("Float", line);
         this.value = value;
     }

@@ -1,378 +1,986 @@
-package Visitor.Python;//package Visitor.Python;
-//
-//import AST.Python.Parmeter;
-//
-//import java.util.List;
-//import java.util.ArrayList;
-//
-//import AST.Python.Statement.Block;
-//
-//import antlr.pythonParser;
-//import AST.Python.PythonNode;
-//import AST.Python.Expr.*;
-//import AST.Python.Statement.*;
-//import antlr.pythonParserBaseVisitor;
-//import AST.Python.Program;
-//
-//
-//public class PythonVisitor extends pythonParserBaseVisitor<PythonNode> {
-//    @Override
-//    public PythonNode visitProg(pythonParser.ProgContext ctx) {
-//
-//        List<PythonNode> statements = new ArrayList<>();
-//
-//        for (pythonParser.StatementContext stmtCtx : ctx.statement()) {
-//            PythonNode stmt = visit(stmtCtx);
-//            if (stmt != null) {
-//                statements.add(stmt);
-//            }
-//        }
-//
-//        int line = ctx.start.getLine();
-//        return new Program(line, statements);
-//    }
-//
-//    @Override
-//    public PythonNode visitExpressionStatement(
-//            pythonParser.ExpressionStatementContext ctx) {
-//        return visit(ctx.expr_stmt().expr());
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitUnaryExpr(pythonParser.UnaryExprContext ctx) {
-//
-//        Expr expr = (Expr) visit(ctx.primary());
-//        String op = ctx.getChild(0).getText();
-//
-//        if (op.equals("-"))
-//            return new Negate(ctx.start.getLine(), expr);
-//
-//        return expr; // unary +
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitArithmeticExpr(
-//            pythonParser.ArithmeticExprContext ctx) {
-//
-//        Expr left = (Expr) visit(ctx.primary(0));
-//
-//        for (int i = 1; i < ctx.primary().size(); i++) {
-//
-//            String op = ctx.getChild(2 * i - 1).getText();
-//            Expr right = (Expr) visit(ctx.primary(i));
-//
-//            switch (op) {
-//                case "+":
-//                case "-":
-//                    left = new AddSub(ctx.start.getLine(), left, op, right);
-//                    break;
-//
-//                case "*":
-//                case "/":
-//                    left = new MulDiv(ctx.start.getLine(), left, op, right);
-//                    break;
-//
-//                default:
-//                    left = new Comparison(ctx.start.getLine(), left, op, right);
-//            }
-//        }
-//
-//        return left;
-//    }
-//
-////    @Override
-////    public PythonNode visitAtomExpr(pythonParser.AtomExprContext ctx) {
-////        return visit(ctx.atom());
-////    }
-//
-//
-//    @Override
-//    public PythonNode visitAtom(pythonParser.AtomContext ctx) {
-//        int line = ctx.start.getLine();
-//
-//        if (ctx.VARIABLE() != null)
-//            return new Variable(line, ctx.VARIABLE().getText());
-//
-//        if (ctx.NUMBER() != null)
-//            return new NumberLiteral(line, Double.parseDouble(ctx.NUMBER().getText()));
-//
-//        if (ctx.STRING() != null)
-//            return new StringLiteral(line, ctx.STRING().getText());
-//
-//        if (ctx.TRUE() != null)
-//            return new BooleanLiteral(line, true);
-//
-//        if (ctx.FALSE() != null)
-//            return new BooleanLiteral(line, false);
-//
-//        if (ctx.list_literal() != null)
-//            return visit(ctx.list_literal());
-//
-//        if (ctx.dict_literal() != null)
-//            return visit(ctx.dict_literal());
-//
-//        if (ctx.expr() != null) {
-//            return visit(ctx.expr());
-//        }
-//
-//        return null;
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitAtomExprPrimary(pythonParser.AtomExprPrimaryContext ctx) {
-//        return visit(ctx.atom());
-//    }
-//
-//    @Override
-//    public PythonNode visitAttributeAccess(pythonParser.AttributeAccessContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        Expr object = (Expr) visit(ctx.primary());
-//        String attr = ctx.VARIABLE().getText();
-//
-//        return new AttributeAccess(line, object, attr);
-//    }
-//
-//    @Override
-//    public PythonNode visitFunctionCall(pythonParser.FunctionCallContext ctx) {
-//        int line = ctx.start.getLine();
-//        Expr target = (Expr) visit(ctx.primary());
-//
-//        List<Expr> args = new ArrayList<>();
-//        if (ctx.arg_list() != null) {
-//            for (pythonParser.ArgumentContext argCtx : ctx.arg_list().argument()) {
-//                args.add((Expr) visit(argCtx.expr()));
-//            }
-//        }
-//        return new FunctionCall(line, target, args);
-//    }
-//
-//    @Override
-//    public PythonNode visitListIndex(pythonParser.ListIndexContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        Expr object = (Expr) visit(ctx.primary());
-//        Expr index = (Expr) visit(ctx.expr());
-//
-//        return new Subscript(line, object, index);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitList_literal(pythonParser.List_literalContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        List<Expr> elements = new ArrayList<>();
-//
-//        for (pythonParser.ExprContext ectx : ctx.expr()) {
-//            elements.add((Expr) visit(ectx));
-//        }
-//
-//        return new ListExpr(line, elements);
-//    }
-//
-//    @Override
-//    public PythonNode visitDict_literal(pythonParser.Dict_literalContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        List<Expr> keys = new ArrayList<>();
-//        List<Expr> values = new ArrayList<>();
-//
-//        for (pythonParser.Kv_pairContext kv : ctx.kv_pair()) {
-//            keys.add((Expr) visit(kv.expr(0)));
-//            values.add((Expr) visit(kv.expr(1)));
-//        }
-//
-//        return new DictLiteral(line, keys, values);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitAssignStatement(pythonParser.AssignStatementContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//
-//        Expr target = (Expr) visit(ctx.assign_stmt().primary());
-//
-//        String op = ctx.assign_stmt().ASSIGN().getText();
-//
-//        Expr value = (Expr) visit(ctx.assign_stmt().expr());
-//
-//        return new Assignment(line, target, op, value);
-//    }
-//
-//    @Override
-//    public PythonNode visitReturnStatement(pythonParser.ReturnStatementContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        Expr value = null;
-//
-//        if (ctx.return_stmt().expr() != null) {
-//            value = (Expr) visit(ctx.return_stmt().expr());
-//        }
-//
-//        return new ReturnStmt(line, value);
-//    }
-//
-//    @Override
-//    public PythonNode visitPrintStatement(pythonParser.PrintStatementContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        List<Expr> args = new ArrayList<>();
-//
-//        if (ctx.print_stmt().arg_list() != null) {
-//            for (pythonParser.ArgumentContext argCtx :
-//                    ctx.print_stmt().arg_list().argument()) {
-//                args.add((Expr) visit(argCtx.expr()));
-//            }
-//        }
-//
-//        return new PrintStmt(line, args);
-//    }
-//
-//    @Override
-//    public PythonNode visitImportStatement(pythonParser.ImportStatementContext ctx) {
-//
-//        int line = ctx.start.getLine();
-//        List<String> modules = new ArrayList<>();
-//
-//        pythonParser.Import_stmtContext ictx = ctx.import_stmt();
-//
-//        modules.add(ictx.path(ictx.path().size() - 1).getText());
-//
-//        return new Import(line, modules);
-//    }
-//
-//    @Override
-//    public PythonNode visitSuite(pythonParser.SuiteContext ctx) {
-//        int line = ctx.start.getLine();
-//        List<PythonNode> body = new ArrayList<>();
-//
-//        for (pythonParser.StatementContext stmtCtx : ctx.statement()) {
-//            PythonNode stmt = visit(stmtCtx);
-//            if (stmt != null)
-//                body.add(stmt);
-//        }
-//
-//        return new Block(line, body);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitIfStatement(pythonParser.IfStatementContext ctx) {
-//
-//        pythonParser.If_stmtContext ifCtx = ctx.if_stmt();
-//        int line = ifCtx.start.getLine();
-//
-//        Expr condition = (Expr) visit(ifCtx.expr());
-//
-//        Block thenBlock = (Block) visit(ifCtx.suite());
-//        List<PythonNode> thenBody = thenBlock.body;
-//
-//        List<PythonNode> elifNodes = new ArrayList<>();
-//        for (pythonParser.Elif_clauseContext elifCtx : ifCtx.elif_clause()) {
-//
-//            Expr elifCond = (Expr) visit(elifCtx.expr());
-//            Block elifBlock = (Block) visit(elifCtx.suite());
-//            IfStmt elifStmt = new IfStmt(
-//                    elifCtx.start.getLine(),
-//                    elifCond,
-//                    elifBlock.body,
-//                    null,
-//                    null
-//            );
-//
-//            elifNodes.add(elifStmt);
-//        }
-//
-//        List<PythonNode> elseBody = null;
-//        if (ifCtx.else_clause() != null) {
-//            Block elseBlock = (Block) visit(ifCtx.else_clause().suite());
-//            elseBody = elseBlock.body;
-//        }
-//
-//        return new IfStmt(line, condition, thenBody, elifNodes, elseBody);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitWhileStatement(pythonParser.WhileStatementContext ctx) {
-//
-//        pythonParser.While_stmtContext wctx = ctx.while_stmt();
-//        int line = wctx.start.getLine();
-//
-//        Expr condition = (Expr) visit(wctx.expr());
-//
-//        Block block = (Block) visit(wctx.suite());
-//        List<PythonNode> body = block.body;
-//
-//        return new WhileStmt(line, condition, body);
-//    }
-//
-//    @Override
-//    public PythonNode visitForStatement(pythonParser.ForStatementContext ctx) {
-//
-//        pythonParser.For_stmtContext fctx = ctx.for_stmt();
-//        int line = fctx.start.getLine();
-//
-//        String iterator = fctx.VARIABLE().getText();
-//        Expr iterable = (Expr) visit(fctx.expr());
-//        Block block = (Block) visit(fctx.suite());
-//        List<PythonNode> body = block.body;
-//
-//        return new ForStmt(line, iterator, iterable, body);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitFunctionDefinition(
-//            pythonParser.FunctionDefinitionContext ctx) {
-//
-//        pythonParser.Func_defContext fctx = ctx.func_def();
-//        int line = fctx.start.getLine();
-//
-//        String name = fctx.VARIABLE().getText();
-//
-//        List<Parmeter> parameters = new ArrayList<>();
-//        if (fctx.param_list() != null) {
-//            for (var param : fctx.param_list().VARIABLE()) {
-//                parameters.add(
-//                        new Parmeter(
-//                                param.getSymbol().getLine(),
-//                                param.getText()
-//                        )
-//                );
-//            }
-//        }
-//
-//        Block block = (Block) visit(fctx.suite());
-//        List<PythonNode> body = block.body;
-//
-//        return new FunctionDef(line, name, parameters, body);
-//    }
-//
-//
-//    @Override
-//    public PythonNode visitWithStatement(pythonParser.WithStatementContext ctx) {
-//
-//        pythonParser.With_stmtContext wctx = ctx.with_stmt();
-//        int line = wctx.start.getLine();
-//
-//        Expr expr = (Expr) visit(wctx.expr());
-//
-//        String var = null;
-//        if (wctx.VARIABLE() != null) {
-//            var = wctx.VARIABLE().getText();
-//        }
-//
-//        Block block = (Block) visit(wctx.suite());
-//        List<PythonNode> body = block.body;
-//
-//        return new WithNode(line, expr, var, body);
-//    }
-//
-//
-//}
+package Visitor.Python;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import AST.Python.PythonNode;
+import AST.Python.Program;
+import AST.Python.Statement.Expr.LogicalExpr.*;
+import AST.Python.Statement.test.Atom1.Boolean;
+import AST.Python.Statement.test.Atom1.*;
+import AST.Python.Statement.test.Atom1.Number;
+import AST.Python.Statement.*;
+import AST.Python.Statement.Expr.*;
+import AST.Python.Statement.test.*;
+
+import antlr.pythonParser;
+import antlr.pythonParserBaseVisitor;
+
+//import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
+//import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
+
+public class PythonVisitor extends pythonParserBaseVisitor<PythonNode> {
+
+
+    @Override
+    public PythonNode visitProgramRule(pythonParser.ProgramRuleContext ctx) {
+        List<Statement> statements = new ArrayList<>();
+        for (pythonParser.StatementContext stmtCtx : ctx.statement()) {
+            Statement stmt = (Statement) visit(stmtCtx);
+            if (stmt != null) statements.add(stmt);
+        }
+        return new Program(ctx.getStart().getLine(), statements);
+    }
+
+    @Override
+    public PythonNode visitSuiteBlockRule(pythonParser.SuiteBlockRuleContext ctx) {
+
+        List<Statement> statements = new ArrayList<>();
+
+        for (pythonParser.StatementContext stmtCtx : ctx.statement()) {
+
+            Statement stmt = (Statement) visit(stmtCtx);
+
+            if (stmt != null) {
+                statements.add(stmt);
+            }
+        }
+
+        return new Suite(
+                ctx.getStart().getLine(),
+                statements
+        );
+    }
+
+
+    @Override
+    public PythonNode visitAssignStmtRule(pythonParser.AssignStmtRuleContext ctx) {
+
+        Primary leftSide = (Primary) visit(ctx.test());
+
+        Expr rightSide = (Expr) visit(ctx.expr());
+
+        return new Assignment(
+                rightSide,
+                leftSide,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitReturnStmtRule(pythonParser.ReturnStmtRuleContext ctx) {
+
+        Expr expr = null;
+
+        if (ctx.expr() != null) {
+            expr = (Expr) visit(ctx.expr());
+        }
+
+        return new Return(
+                expr,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitExprStmtRule(pythonParser.ExprStmtRuleContext ctx) {
+
+        return visit(ctx.expr());
+    }
+
+    @Override
+    public PythonNode visitPrintStmtRule(pythonParser.PrintStmtRuleContext ctx) {
+
+        ArgumentList args = null;
+
+        if (ctx.arg_list() != null) {
+            args = (ArgumentList) visit(ctx.arg_list());
+        }
+
+        return new Print(
+                args,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitWhileStmtRule(pythonParser.WhileStmtRuleContext ctx) {
+
+        Expr condition = (Expr) visit(ctx.expr());
+
+        Suite body = (Suite) visit(ctx.suite());
+
+        return new While(
+                condition,
+                body,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitForStmtRule(pythonParser.ForStmtRuleContext ctx) {
+
+        Variable variable = new Variable(
+                ctx.VARIABLE().getText(),
+                ctx.getStart().getLine()
+        );
+
+        Expr iterable = (Expr) visit(ctx.expr());
+
+        Suite body = (Suite) visit(ctx.suite());
+
+        return new For(
+                iterable,
+                variable,
+                body,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitWithStmtRule(pythonParser.WithStmtRuleContext ctx) {
+
+        Expr expr = (Expr) visit(ctx.expr());
+
+        Variable variable = null;
+
+        if (ctx.VARIABLE() != null) {
+            variable = new Variable(
+                    ctx.VARIABLE().getText(),
+                    ctx.getStart().getLine()
+            );
+        }
+
+        Suite suite = (Suite) visit(ctx.suite());
+
+        return new With(
+                expr,
+                variable,
+                suite,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitImportStmtRule(pythonParser.ImportStmtRuleContext ctx) {
+
+        Path fromPath = null;
+
+        List<Path> imports = new ArrayList<>();
+
+        if (ctx.path().size() > 0) {
+
+            int startIndex = 0;
+
+            if (ctx.FROM() != null) {
+                fromPath = (Path) visit(ctx.path(0));
+                startIndex = 1;
+            }
+
+            for (int i = startIndex; i < ctx.path().size(); i++) {
+                imports.add((Path) visit(ctx.path(i)));
+            }
+        }
+
+        return new Import(
+                fromPath,
+                imports,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitArgListRule(pythonParser.ArgListRuleContext ctx) {
+
+        List<Argument> arguments = new ArrayList<>();
+
+        for (pythonParser.ArgumentContext argCtx : ctx.argument()) {
+
+            arguments.add((Argument) visit(argCtx));
+        }
+
+        Argument firstArgument = null;
+
+        if (!arguments.isEmpty()) {
+            firstArgument = arguments.get(0);
+            arguments.remove(0);
+        }
+
+        return new ArgumentList(
+                ctx.getStart().getLine(),
+                arguments,
+                firstArgument
+        );
+    }
+
+
+    @Override
+    public PythonNode visitArgumentRule(pythonParser.ArgumentRuleContext ctx) {
+
+        Variable variable = null;
+
+        if (ctx.VARIABLE() != null) {
+
+            variable = new Variable(
+                    ctx.VARIABLE().getText(),
+                    ctx.getStart().getLine()
+            );
+        }
+
+        Expr expr = (Expr) visit(ctx.expr());
+
+        return new Argument(
+                expr,
+                variable,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitVariableAtomRule(
+            pythonParser.VariableAtomRuleContext ctx) {
+
+        return new Variable(
+                ctx.VARIABLE().getText(),
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitNumberAtomRule(
+            pythonParser.NumberAtomRuleContext ctx) {
+
+        return new Number(
+                Integer.parseInt(ctx.NUMBER().getText()),
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitFLOATAtomRule(
+            pythonParser.FLOATAtomRuleContext ctx) {
+
+        return new FloatLiteral(
+                Float.parseFloat(ctx.FLOAT().getText()),
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitStringAtomRule(
+            pythonParser.StringAtomRuleContext ctx) {
+
+        String text = ctx.STRING().getText();
+
+        return new StringLiteral(
+                text,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitNoneAtomRule(
+            pythonParser.NoneAtomRuleContext ctx) {
+
+        return new None(
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitTrueAtomRule(
+            pythonParser.TrueAtomRuleContext ctx) {
+
+        return new Boolean(
+                true,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitFalseAtomRule(
+            pythonParser.FalseAtomRuleContext ctx) {
+
+        return new Boolean(
+                false,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitArithmeticRule(
+            pythonParser.ArithmeticRuleContext ctx) {
+
+        // أول term
+        Logical left = (Logical) visit(ctx.term(0));
+
+        // منلف على باقي العمليات
+        for (int i = 1; i < ctx.term().size(); i++) {
+
+            // operator الحالي (+ أو -)
+            String op = ctx.getChild(2 * i - 1).getText();
+
+            // الطرف اليمين
+            Logical right = (Logical) visit(ctx.term(i));
+
+            // نبني node جديدة
+            left = new PlusMinus(
+                    left,
+                    op,
+                    right,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        return left;
+    }
+
+    @Override
+    public PythonNode visitTermRule(
+            pythonParser.TermRuleContext ctx) {
+
+        // أول factor
+        Logical left = (Logical) visit(ctx.factor(0));
+
+        // نلف على باقي العمليات
+        for (int i = 1; i < ctx.factor().size(); i++) {
+
+            // operator الحالي (* أو /)
+            String op = ctx.getChild(2 * i - 1).getText();
+
+            // الطرف اليمين
+            Logical right = (Logical) visit(ctx.factor(i));
+
+            // نبني AST Node
+            left = new MulDiv(
+                    left,
+                    op,
+                    right,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        return left;
+    }
+
+
+    @Override
+    public PythonNode visitComparisonRule(
+            pythonParser.ComparisonRuleContext ctx) {
+
+        // أول arithmetic expression
+        Logical left = (Logical) visit(ctx.arithmeticExpr(0));
+
+        // إذا ما في comparison operator
+        // مثل:
+        // a + b
+        if (ctx.arithmeticExpr().size() == 1) {
+            return left;
+        }
+
+        // نبني comparisons
+        for (int i = 1; i < ctx.arithmeticExpr().size(); i++) {
+
+            // operator الحالي
+            String op = ctx.getChild(2 * i - 1).getText();
+
+            // الطرف اليمين
+            Logical right =
+                    (Logical) visit(ctx.arithmeticExpr(i));
+
+            // بناء comparison node
+            left = new Comparison(
+                    left,
+                    op,
+                    right,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        return left;
+    }
+
+    @Override
+    public PythonNode visitAndTestRule(
+            pythonParser.AndTestRuleContext ctx) {
+
+        // أول not_test
+        Logical left = (Logical) visit(ctx.not_test(0));
+
+        // إذا ما في AND
+        if (ctx.not_test().size() == 1) {
+            return left;
+        }
+
+        // نبني سلسلة AND
+        for (int i = 1; i < ctx.not_test().size(); i++) {
+
+            // الطرف اليمين
+            Logical right =
+                    (Logical) visit(ctx.not_test(i));
+
+            // نبني And node
+            left = new And(
+                    left,
+                    right,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        return left;
+    }
+
+    @Override
+    public PythonNode visitOrTestRule(
+            pythonParser.OrTestRuleContext ctx) {
+
+        // أول and_test
+        Logical left = (Logical) visit(ctx.and_test(0));
+
+        // إذا ما في OR
+        if (ctx.and_test().size() == 1) {
+            return left;
+        }
+
+        // نبني سلسلة OR
+        for (int i = 1; i < ctx.and_test().size(); i++) {
+
+            // الطرف اليمين
+            Logical right =
+                    (Logical) visit(ctx.and_test(i));
+
+            // بناء OR node
+            left = new Or(
+                    left,
+                    right,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        return left;
+    }
+
+
+    @Override
+    public PythonNode visitNotExprRule(
+            pythonParser.NotExprRuleContext ctx) {
+
+        Logical operand = (Logical) visit(ctx.not_test());
+
+        return new Not(
+                operand,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitUnaryExprRule(
+            pythonParser.UnaryExprRuleContext ctx) {
+
+        // operator الحالي (+ أو -)
+        String op = ctx.getChild(0).getText();
+
+        // نزور العامل الداخلي recursively
+        PythonNode operand = visit(ctx.factor());
+
+        // بناء unary factor node
+        return new Factor(
+                operand,
+                op,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitTest(pythonParser.TestContext ctx) {
+
+        PythonNode atomResult = visit(ctx.atom());
+
+
+        if (atomResult instanceof Logical && ctx.getChildCount() == 1) {
+            return atomResult;
+        }
+
+        // إذا رجع Logical مثل PlusMinus من ParenAtom — ارجعه مباشرة
+        if (atomResult instanceof Logical) {
+            // بس إذا ما في operations بعده
+            if (ctx.getChildCount() == 1) {
+                return atomResult;
+            }
+            // إذا في operations — لازم نحطه داخل Primary
+            // بس هاد ما ممكن لأن Primary بياخذ Atom
+            // إذن نرجعه مباشرة
+            return atomResult;
+        }
+
+        // الحالة العادية
+        Atom atom = (Atom) atomResult;
+
+        List<Operation> operations = new ArrayList<>();
+
+        int variableIndex = 0;
+        int argIndex = 0;
+        int exprIndex = 0;
+
+        for (int i = 1; i < ctx.getChildCount(); ) {
+
+            ParseTree child = ctx.getChild(i);
+            String text = child.getText();
+
+            if (text.equals(".")) {
+                Variable var = new Variable(
+                        ctx.VARIABLE(variableIndex).getText(),
+                        ctx.getStart().getLine()
+                );
+                operations.add(new AttributeAccess(
+                        null, var, ctx.getStart().getLine()
+                ));
+                variableIndex++;
+                i += 2;
+
+            } else if (text.equals("(")) {
+                ArgumentList args = null;
+                if (argIndex < ctx.arg_list().size()) {
+                    args = (ArgumentList) visit(ctx.arg_list(argIndex));
+                }
+                operations.add(new FunctionCall(
+                        null, args, ctx.getStart().getLine()
+                ));
+                argIndex++;
+                while (!ctx.getChild(i).getText().equals(")")) i++;
+                i++;
+
+            } else if (text.equals("[")) {
+                Expr expr = (Expr) visit(ctx.expr(exprIndex));
+                operations.add(new ListIndex(
+                        null, expr, ctx.getStart().getLine()
+                ));
+                exprIndex++;
+                while (!ctx.getChild(i).getText().equals("]")) i++;
+                i++;
+
+            } else {
+                i++;
+            }
+        }
+
+        return new Primary(atom, operations, ctx.getStart().getLine());
+    }
+    @Override
+    public PythonNode visitParamListRule(pythonParser.ParamListRuleContext ctx) {
+
+        List<Parameter> parameters = new ArrayList<>();
+        List<TerminalNode> vars = ctx.VARIABLE();
+
+        // نبني كل child بالترتيب
+        // كل VARIABLE ممكن يكون بعده ASSIGN + expr أو لا
+        int exprIndex = 0;
+
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            String text = ctx.getChild(i).getText();
+
+            // تجاهل COMMA
+            if (text.equals(",")) continue;
+
+            // إذا وصلنا لـ VARIABLE
+            if (ctx.getChild(i) instanceof TerminalNode) {
+                TerminalNode varToken = (TerminalNode) ctx.getChild(i);
+
+                // تحقق إذا الـ token هو VARIABLE فعلاً
+                if (varToken.getSymbol().getType() != pythonParser.VARIABLE) continue;
+
+                Variable variable = new Variable(
+                        varToken.getText(),
+                        varToken.getSymbol().getLine()
+                );
+
+                Expr defaultValue = null;
+
+                // شوف إذا الـ child التالي هو ASSIGN
+                if (i + 1 < ctx.getChildCount()
+                        && ctx.getChild(i + 1).getText().equals("=")) {
+
+                    // الـ expr بعد الـ =
+                    defaultValue = (Expr) visit(ctx.expr(exprIndex));
+                    exprIndex++;
+                    i += 2; // تجاوز = والـ expr
+                }
+
+                parameters.add(new Parameter(
+                        defaultValue,
+                        variable,
+                        variable.line
+                ));
+            }
+        }
+
+        return new ParameterList(ctx.getStart().getLine(), parameters);
+    }
+
+    @Override
+    public PythonNode visitFunctionDefRule(
+            pythonParser.FunctionDefRuleContext ctx) {
+
+        Variable functionName = new Variable(
+                ctx.VARIABLE().getText(),
+                ctx.getStart().getLine()
+        );
+
+        ParameterList parameters = null;
+
+        if (ctx.param_list() != null) {
+
+            parameters =
+                    (ParameterList) visit(ctx.param_list());
+        }
+
+        Suite body =
+                (Suite) visit(ctx.suite());
+
+        return new FuntctionDef(
+                functionName,
+                parameters,
+                body,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitElseClauseRule(
+            pythonParser.ElseClauseRuleContext ctx) {
+
+        List<Suite> suites = new ArrayList<>();
+
+        suites.add(
+                (Suite) visit(ctx.suite())
+        );
+
+        return new Else(
+                ctx.getStart().getLine(),
+                suites
+        );
+    }
+
+    @Override
+    public PythonNode visitElifClauseRule(
+            pythonParser.ElifClauseRuleContext ctx) {
+
+        Expr condition =
+                (Expr) visit(ctx.expr());
+
+        Suite body =
+                (Suite) visit(ctx.suite());
+
+        return new ElseIf(
+                condition,
+                body,
+                null,
+                ctx.getStart().getLine()
+        );
+    }
+
+    @Override
+    public PythonNode visitIfStmtRule(
+            pythonParser.IfStmtRuleContext ctx) {
+
+        // الشرط الأساسي
+        Expr condition =
+                (Expr) visit(ctx.expr());
+
+        // then branch
+        Suite thenBranch =
+                (Suite) visit(ctx.suite());
+
+        // elif branches
+        List<ElseIf> elifBranches =
+                new ArrayList<>();
+
+        for (pythonParser.Elif_clauseContext elifCtx
+                : ctx.elif_clause()) {
+
+            elifBranches.add(
+                    (ElseIf) visit(elifCtx)
+            );
+        }
+
+        // else branch
+        Else elseBranch = null;
+
+        if (ctx.else_clause() != null) {
+
+            elseBranch =
+                    (Else) visit(ctx.else_clause());
+        }
+
+        return new If(
+                ctx.getStart().getLine(),
+                condition,
+                thenBranch,
+                elifBranches,
+                elseBranch
+        );
+    }
+
+    @Override
+    public PythonNode visitKvPairRule(
+            pythonParser.KvPairRuleContext ctx) {
+
+        Expr key =
+                (Expr) visit(ctx.expr(0));
+
+        Expr value =
+                (Expr) visit(ctx.expr(1));
+
+        return new KeyValuePair(
+                key,
+                value,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitDictLiteralRule(
+            pythonParser.DictLiteralRuleContext ctx) {
+
+        List<KeyValuePair> elements =
+                new ArrayList<>();
+
+        for (pythonParser.Kv_pairContext kvCtx
+                : ctx.kv_pair()) {
+
+            elements.add(
+                    (KeyValuePair) visit(kvCtx)
+            );
+        }
+
+        return new DistLiteral(
+                ctx.getStart().getLine(),
+                elements
+        );
+    }
+    @Override
+    public PythonNode visitListAtomRule(
+            pythonParser.ListAtomRuleContext ctx) {
+
+        PythonNode result = visit(ctx.list_literal());
+
+        // إذا رجع ListComprehension — ارجعه مباشرة بدون Primary
+        if (result instanceof ListComprehension) {
+            return result;
+        }
+
+        // list عادية — ارجع الـ ListLiteral
+        return result;
+    }
+
+    @Override
+    public PythonNode visitDictAtomRule(
+            pythonParser.DictAtomRuleContext ctx) {
+
+        return visit(ctx.dict_literal());
+    }
+
+    @Override
+    public PythonNode visitParenAtomRule(
+            pythonParser.ParenAtomRuleContext ctx) {
+
+        return visit(ctx.expr());
+    }
+
+    @Override
+    public PythonNode visitList_literal(
+            pythonParser.List_literalContext ctx) {
+
+        if (ctx.FOR() != null) {
+
+            // كان Primary — صار Expr
+            Expr element = (Expr) visit(ctx.expr(0));
+
+            Variable variable = new Variable(
+                    ctx.VARIABLE().getText(),
+                    ctx.getStart().getLine()
+            );
+
+            // كان Primary — صار Expr
+            Expr iterable = (Expr) visit(ctx.expr(1));
+
+            Expr condition = null;
+            if (ctx.expr().size() > 2) {
+                condition = (Expr) visit(ctx.expr(2));
+            }
+
+            return new ListComprehension(
+                    element,
+                    variable,
+                    iterable,
+                    condition,
+                    ctx.getStart().getLine()
+            );
+        }
+
+        // list عادية
+        List<PythonNode> elements = new ArrayList<>();
+        for (pythonParser.ExprContext exprCtx : ctx.expr()) {
+            elements.add(visit(exprCtx));
+        }
+        return new ListLiteral(ctx.getStart().getLine(), elements);
+    }
+
+
+    @Override
+    public PythonNode visitDecoratorStmtRule(pythonParser.DecoratorStmtRuleContext ctx) {
+        Primary primary = (Primary) visit(ctx.test());
+        Statement statement = (Statement) visit(ctx.statement());
+        return new Decortator(
+                primary,
+                null,
+                statement,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitLogicalExprRule(
+            pythonParser.LogicalExprRuleContext ctx) {
+
+        return visit(ctx.or_test());
+    }
+
+    @Override
+    public PythonNode visitComparisonExprRule(
+            pythonParser.ComparisonExprRuleContext ctx) {
+
+        return visit(ctx.comparison());
+    }
+
+    @Override
+    public PythonNode visitListComprehensionRule(
+            pythonParser.ListComprehensionRuleContext ctx) {
+
+        Expr element = (Expr) visit(ctx.test(0));  // كان Primary
+
+        Variable variable = new Variable(
+                ctx.VARIABLE().getText(),
+                ctx.getStart().getLine()
+        );
+
+        Expr iterable = (Expr) visit(ctx.test(1));  // كان Primary
+
+        Expr condition = null;
+        if (ctx.expr() != null) {
+            condition = (Expr) visit(ctx.expr());
+        }
+
+        return new ListComprehension(
+                element,
+                variable,
+                iterable,
+                condition,
+                ctx.getStart().getLine()
+        );
+    }
+
+
+    @Override
+    public PythonNode visitFactorToTestRule(
+            pythonParser.FactorToTestRuleContext ctx) {
+
+        return visit(ctx.test());
+    }
+
+    @Override
+    public PythonNode visitDecoratorStatementRule(pythonParser.DecoratorStatementRuleContext ctx) {
+        return visit(ctx.decorator_stmt());
+    }
+
+    @Override
+    public PythonNode visitImportStatementRule(pythonParser.ImportStatementRuleContext ctx) {
+        return visit(ctx.import_stmt());
+    }
+
+    @Override
+    public PythonNode visitAssignStatementRule(pythonParser.AssignStatementRuleContext ctx) {
+        return visit(ctx.assign_stmt());
+    }
+
+    @Override
+    public PythonNode visitFunctionDefinitionRule(pythonParser.FunctionDefinitionRuleContext ctx) {
+        return visit(ctx.func_def());
+    }
+
+    @Override
+    public PythonNode visitIfStatementRule(pythonParser.IfStatementRuleContext ctx) {
+        return visit(ctx.if_stmt());
+    }
+
+    @Override
+    public PythonNode visitWithStatementRule(pythonParser.WithStatementRuleContext ctx) {
+        return visit(ctx.with_stmt());
+    }
+
+    @Override
+    public PythonNode visitForStatementRule(pythonParser.ForStatementRuleContext ctx) {
+        return visit(ctx.for_stmt());
+    }
+
+    @Override
+    public PythonNode visitWhileStatementRule(pythonParser.WhileStatementRuleContext ctx) {
+        return visit(ctx.while_stmt());
+    }
+
+    @Override
+    public PythonNode visitPrintStatementRule(pythonParser.PrintStatementRuleContext ctx) {
+        return visit(ctx.print_stmt());
+    }
+
+    @Override
+    public PythonNode visitReturnStatementRule(pythonParser.ReturnStatementRuleContext ctx) {
+        return visit(ctx.return_stmt());
+    }
+
+    @Override
+    public PythonNode visitExpressionStatementRule(pythonParser.ExpressionStatementRuleContext ctx) {
+        return visit(ctx.expr_stmt());
+    }
+    @Override
+    public PythonNode visitPathRule(pythonParser.PathRuleContext ctx) {
+
+        List<Variable> elements = new ArrayList<>();
+
+        // نلف على كل children — VARIABLE أو DOT
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            String text = child.getText();
+
+            // تجاهل DOT
+            if (text.equals(".")) continue;
+
+            // كل شي ثاني هو VARIABLE
+            elements.add(new Variable(
+                    text,
+                    ctx.getStart().getLine()
+            ));
+        }
+
+        return new Path(
+                ctx.getStart().getLine(),
+                elements
+        );
+    }
+}
+
+

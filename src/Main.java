@@ -1,13 +1,141 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+import antlr.pythonLexer;
+import antlr.pythonParser;
+import Visitor.Python.PythonVisitor;
+import AST.Python.PythonNode;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+//        String code = """
+//
+//        x = 5
+//        y = 3.14
+//        name = "hello"
+//        flag = True
+//        nothing = None
+//
+//
+//        z = x + y
+//        w = x * 2 - 1
+//
+//
+//        result = x > 3 and flag
+//        result2 = x == 5 or y < 10
+//        result3 = not flag
+//
+//        print(x)
+//        print(x, y, name)
+//
+//
+//        if x > 3:
+//            y = 1
+//        elif x == 3:
+//           y = 2
+//        else:
+//            y = 0
+//
+//
+//        while x > 0:
+//            x = x - 1
+//
+//
+//        for i in myList:
+//            print(i)
+//
+//
+//       myList = [1, 2, 3]
+//
+//
+//       myDict = {"key": "value"}
+//
+//
+//        def add(a, b):
+//            return a + b
+//
+//
+//        result = add(x, y)
+//
+//
+//       obj.name
+//
+//        myList[0]
+//
+//
+//        import math
+//        from os import path
+//
+//
+//        with open("file") as f:
+//           print(f)
+//
+//        squares = [x * x for x in myList]
+//        """;
+
+
+
+
+        String code = """
+        @myDecorator(arg1, arg2)
+        def myFunc():
+            return 1
+
+        result = add(x=5, y=10)
+        """;
+//        String code = """
+//                def outer(x):
+//                    def inner(y):
+//                        return x + y
+//                    return inner(x)
+//
+//                def greet(name, msg="hello"):
+//                    print(name)
+//
+//                @myDecorator
+//                def myFunc():
+//                    return 1
+//
+//                result = obj.method(x)[0].name
+//
+//                matrix = [[1, 2], [3, 4]]
+//                data = {"key": [1, 2, 3]}
+//
+//                x = -5
+//                y = +x
+//
+//                evens = [x for x in myList if x > 0]
+//
+//                def check(x):
+//                    while x > 0:
+//                        if x == 5:
+//                            return x
+//                        x = x - 1
+//
+//                from os.path import join
+//
+//                result = (x + y) * (z - 1)
+//                flag = not x > 5 and y < 10 or z == 0
+//                """;
+
+        // 1. Lexer
+        CharStream input = CharStreams.fromString(code);
+        pythonLexer lexer = new pythonLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        // 2. Parser
+        pythonParser parser = new pythonParser(tokens);
+        ParseTree tree = parser.prog();
+
+        // 3. Visitor — يبني الـ AST
+        PythonVisitor visitor = new PythonVisitor();
+        PythonNode ast = visitor.visit(tree);
+
+        // 4. اطبع الـ AST
+        if (ast != null) {
+            System.out.println(ast.toString());
+        } else {
+            System.out.println("AST is null!");
+        }
     }
 }

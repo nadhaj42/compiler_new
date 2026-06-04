@@ -11,14 +11,16 @@ public class Import extends Statement {
         this.forpath = forpath;
         this.imports = imports;
     }
-
     public String toString() {
         String message = super.toString() + "{start Import\n";
         if (forpath != null)
             message += forpath.toString() + "\n;";
-        if (imports != null){
-            for (Path element : imports)
-                message += element.toString() + "\n";}
+        if (imports != null) {
+            for (Path element : imports) {
+                if (element != null)  // ← هون الإضافة
+                    message += element.toString() + "\n";
+            }
+        }
         message += "end Import\n}";
         return message;
     }

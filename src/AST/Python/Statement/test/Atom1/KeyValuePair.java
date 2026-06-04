@@ -8,7 +8,7 @@ public class KeyValuePair extends PythonNode {
     public Expr value;
 
     public KeyValuePair(Expr key, Expr value, int line) {
-        super("Or", line);
+        super("KeyValuePair", line);
         this.key = key;
         this.value = value;
     }
