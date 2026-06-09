@@ -1,4 +1,4 @@
-package SymbolTable.htmlCssJInja;
+package Semantic.htmlCssJInja;
 
 public class Symbol {
     public String name;

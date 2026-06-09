@@ -4,6 +4,20 @@ import antlr.pythonLexer;
 import antlr.pythonParser;
 import Visitor.Python.PythonVisitor;
 import AST.Python.PythonNode;
+import Semantic.Python.SymbolTableFiller;
+// استيراد مكتبات ANTLR الأساسية
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+
+
+
+// استيراد الكلاسات الخاصة بمشروعك (تأكدي من مطابقة اسم الحزمة لديكِ)
+import antlr.pythonLexer; // أو antlr2.pythonLexer حسب المجلد الصحيح لقواعدك
+import antlr.pythonParser;
+import AST.Python.Program;
+import Visitor.Python.PythonVisitor;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -137,5 +151,49 @@ public class Main {
         } else {
             System.out.println("AST is null!");
         }
+
+
+        //كود الsymboltable
+        try {
+
+            String pythonCode =
+                    "# Global variables\n" +
+                            "tax_rate = 0.15\n" +
+                            "user_name = \"Ahmad\"\n" +
+                            "\n" +
+                            "def calculate_bill(price, qty):\n" +
+                            "    # Local variables inside function\n" +
+                            "    subtotal = price * qty\n" +
+                            "    total = subtotal + (subtotal * tax_rate)\n" +
+                            "    print(user_name)\n" +
+                            "    return total\n" +
+                            "\n" +
+                            "final_price = calculate_bill(100, 2)\n" +
+                            "print(final_price)";
+
+            System.out.println("--- Processing Python Code ---\n");
+
+            // 2. إعداد الـ Lexer والـ Parser
+
+
+            pythonLexer pyLexer = new pythonLexer(CharStreams.fromString(pythonCode));
+            CommonTokenStream pyTokens = new CommonTokenStream(pyLexer);
+            pythonParser pyParser = new pythonParser(pyTokens);
+
+
+            ParseTree pyTree = pyParser.prog();
+
+            //  استخدام  Visitor الخاص ببايثون لبناء الـ AST
+            PythonVisitor pyVisitor = new PythonVisitor();
+            Program pyProgramAST = (Program) pyVisitor.visit(pyTree);
+
+            //  تشغيل الـ Symbol Table Filler لإنشاء وطباعة الجداول
+            SymbolTableFiller pyFiller = new SymbolTableFiller();
+            pyFiller.fillAndPrint(pyProgramAST);
+        } catch (Exception e) {
+            System.err.println("Error during execution: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
+

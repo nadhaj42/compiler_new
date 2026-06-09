@@ -1,4 +1,4 @@
-package SymbolTable.htmlCssJInja;
+package Semantic.htmlCssJInja;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
