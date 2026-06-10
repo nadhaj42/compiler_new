@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ForStatement extends Statement {
     public List<ContentNode> body;
-    public ContentNode control;
-    public ForStatement(int line,List<ContentNode> body,ContentNode control) {
+    public ForControl  control;
+    public ForStatement(int line,List<ContentNode> body,ForControl  control) {
         super("ForStatement",line);
         this.control = control;
         this.body=body;
@@ -16,6 +16,7 @@ public class ForStatement extends Statement {
 
     public String toString() {
         String message = super.toString() + "{\nstart ForStatement\n"+control.toString()+'\n';
+        message += "body {\n";
         if (body != null){
             for (ContentNode element : body)
                 message += element.toString() + "\n";}

@@ -1,9 +1,9 @@
 package AST.html_css_jinja.Expression;
 
-public class Number extends ExpressionNode{
+public class NumberLiteral extends ExpressionNode{
     public double text;
 
-    public Number(double text,int line) {
+    public NumberLiteral(double text, int line) {
         super("Number", line);
         this.text = text;
     }

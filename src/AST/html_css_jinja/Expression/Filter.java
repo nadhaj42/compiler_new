@@ -11,7 +11,7 @@ public class Filter extends ExpressionNode {
         super("Filter", line);
         this.filterName=filterName;
         this.input = input;
-        this.arguments = arguments;
+        this.arguments = argumentss;
     }
 
     public String toString() {

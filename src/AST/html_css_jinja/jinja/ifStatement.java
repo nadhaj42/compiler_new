@@ -9,14 +9,14 @@ import java.util.List;
 public class ifStatement extends Statement {
 
     public ExpressionNode condition;
-    public ContentNode thenBranch;
+    public List<ContentNode> thenBranch;
     public List<ElifBranch> elifBranch;
     public ElseBranch elseBranch;
 
     public ifStatement(
             int line,
             ExpressionNode condition,
-            ContentNode thenBranch,
+            List<ContentNode> thenBranch,
             List<ElifBranch> elifBranch,
             ElseBranch elseBranch
     ) {
@@ -34,8 +34,8 @@ public class ifStatement extends Statement {
 
         message += "then {\n";
         if (thenBranch != null)
-
-            message += thenBranch.toString() + "\n";
+            for (ContentNode n : thenBranch)
+                message += n.toString() + "\n";
         message += "}\n";
 
         if (elifBranch != null) {
@@ -51,9 +51,7 @@ public class ifStatement extends Statement {
             message += "}\n";
         }
 
-        message += "}\nend"+super.toString()+"\n";
+        message += "}\nend" + super.toString() + "\n";
         return message;
     }
 }
-
-

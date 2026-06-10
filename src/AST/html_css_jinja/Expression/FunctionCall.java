@@ -11,7 +11,7 @@ public class FunctionCall extends ExpressionNode {
     public FunctionCall(ExpressionNode function, List<ExpressionNode> argumentss, int line) {
         super("FunctionCall", line);
         this.function = function;
-        this.arguments = arguments;
+        this.arguments = argumentss;
     }
 
     public String toString() {
