@@ -535,7 +535,6 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return null;
     }
 
-
     @Override
     public Node visitCssDeclaration(jinjaParser.CssDeclarationContext ctx) {
         String property = ctx.getChild(0).getText();

@@ -1,52 +1,70 @@
 package Semantic.htmlCssJInja;
 
-import java.util.ArrayDeque;
+
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 public class SymbolTable {
-    private Deque<Scope> scopes = new ArrayDeque<>();
-    private List<Scope> allScopesList = new ArrayList<>();
+
+    public Scope globalScope;
+    private Scope currentScope;
+    // الـ scope الحالي وقت بناء الجدول (يتغير وقت الدخول/الخروج من for)
 
     public SymbolTable() {
-        enterScope("global");
+        this.globalScope = new Scope("Global", null);
+        this.currentScope = globalScope;
     }
 
-    public void enterScope(String name) {
-        Scope newScope = new Scope(name);
-        scopes.push(newScope);
-        allScopesList.add(newScope);
+    // فتح scope جديد (مثلاً عند دخول for loop) ويصير هو الـ current
+    public Scope enterScope(String scopeName) {
+        Scope newScope = new Scope(scopeName, currentScope);
+        currentScope = newScope;
+        return newScope;
     }
 
+    // الخروج من الـ scope الحالي والرجوع لـ scope الأب
     public void exitScope() {
-        if (scopes.size() > 1) {
-            scopes.pop();
+        if (currentScope.parent != null) {
+            currentScope = currentScope.parent;
         }
+        // لو هو الـ Global ما منعمل شي (مفيش أب نرجع له)
     }
 
-    public Scope currentScope() {
-        return scopes.peek();
+    public Scope getCurrentScope() {
+        return currentScope;
     }
 
-    public void define(String name, String kind, int line) {
-        if (name == null || name.trim().isEmpty() || name.equalsIgnoreCase("anonymous")) return;
-        Symbol s = new Symbol(name, kind, currentScope().name, line);
-        currentScope().define(s);
+    // تصريح رمز بالـ scope الحالي
+    public boolean declare(Symbol symbol) {
+        symbol.scope = currentScope;
+        return currentScope.declare(symbol);
     }
 
-    public void print() {
-        System.out.println("\n=========================== FINAL SYMBOL TABLE ===========================");
-        System.out.println("---------------------------------------------------------------------------");
-        System.out.printf("| %-20s | %-18s | %-22s | %-5s |\n", "Name", "Kind", "Scope Context", "Line");
-        System.out.println("---------------------------------------------------------------------------");
+    // البحث عن رمز بدءاً من الـ scope الحالي وصعوداً
+    public Symbol resolve(String name) {
+        return currentScope.resolve(name);
+    }
 
-        for (Scope scope : allScopesList) {
-            for (Symbol s : scope.getSymbols()) {
-                System.out.printf("| %-20s | %-18s | %-22s | %-5d |\n",
-                        s.name, s.kind, s.scope, s.line);
-            }
+    // تجميع كل الرموز الموجودة بكل الـ scopes (للطباعة الشاملة)
+    public List<Symbol> getAllSymbols() {
+        List<Symbol> all = new ArrayList<>();
+        collectSymbols(globalScope, all);
+        return all;
+    }
+
+    private void collectSymbols(Scope scope, List<Symbol> acc) {
+        acc.addAll(scope.symbols.values());
+
+    }
+
+
+    public String printTable(List<Scope> allScopes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("==== Symbol Table (Jinja/HTML/CSS) ====\n");
+        for (Scope scope : allScopes) {
+            sb.append(scope.toString());
         }
-        System.out.println("---------------------------------------------------------------------------");
+        sb.append("=========================================\n");
+        return sb.toString();
     }
 }

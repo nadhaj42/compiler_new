@@ -1,4 +1,5 @@
 
+import Semantic.htmlCssJInja.SymbolTableBuilder;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import antlr.pythonLexer;
@@ -149,46 +150,47 @@ public class Main {
 //
 //
 //        //كود الsymboltable
-//        try {
-//
-//            String pythonCode =
-//                    "# Global variables\n" +
-//                            "tax_rate = 0.15\n" +
-//                            "user_name = \"Ahmad\"\n" +
-//                            "\n" +
-//                            "def calculate_bill(price, qty):\n" +
-//                            "    # Local variables inside function\n" +
-//                            "    subtotal = price * qty\n" +
-//                            "    total = subtotal + (subtotal * tax_rate)\n" +
-//                            "    print(user_name)\n" +
-//                            "    return total\n" +
-//                            "\n" +
-//                            "final_price = calculate_bill(100, 2)\n" +
-//                            "print(final_price)";
-//
-//            System.out.println("--- Processing Python Code ---\n");
-//
-//            // 2. إعداد الـ Lexer والـ Parser
-//
-//
-//            pythonLexer pyLexer = new pythonLexer(CharStreams.fromString(pythonCode));
-//            CommonTokenStream pyTokens = new CommonTokenStream(pyLexer);
-//            pythonParser pyParser = new pythonParser(pyTokens);
-//
-//
-//            ParseTree pyTree = pyParser.prog();
-//
-//            //  استخدام  Visitor الخاص ببايثون لبناء الـ AST
-//            PythonVisitor pyVisitor = new PythonVisitor();
-//            Program pyProgramAST = (Program) pyVisitor.visit(pyTree);
-//
-//            //  تشغيل الـ Symbol Table Filler لإنشاء وطباعة الجداول
-//            SymbolTableFiller pyFiller = new SymbolTableFiller();
-//            pyFiller.fillAndPrint(pyProgramAST);
-//        } catch (Exception e) {
-//            System.err.println("Error during execution: " + e.getMessage());
-//            e.printStackTrace();
-//        }
+        try {
+
+            String pythonCode =
+                    "# Global variables\n" +
+                            "tax_rate = 0.15\n" +
+                            "user_name = \"Ahmad\"\n" +
+                            "\n" +
+                            "def calculate_bill(price, qty):\n" +
+                            "    # Local variables inside function\n" +
+                            "    subtotal = price * qty\n" +
+                            "    total = subtotal + (subtotal * tax_rate)\n" +
+                            "    print(user_name)\n" +
+                            "    return total\n" +
+                            "\n" +
+                            "final_price = calculate_bill(100, 2)\n" +
+                            "print(final_price)";
+
+            System.out.println("--- Processing Python Code ---\n");
+
+            // 2. إعداد الـ Lexer والـ Parser
+
+
+            pythonLexer pyLexer = new pythonLexer(CharStreams.fromString(pythonCode));
+            CommonTokenStream pyTokens = new CommonTokenStream(pyLexer);
+            pythonParser pyParser = new pythonParser(pyTokens);
+
+
+            ParseTree pyTree = pyParser.prog();
+
+            //  استخدام  Visitor الخاص ببايثون لبناء الـ AST
+            PythonVisitor pyVisitor = new PythonVisitor();
+            AST.Python.Program pyProgramAST = (AST.Python.Program) pyVisitor.visit(pyTree);
+
+            //  تشغيل الـ Symbol Table Filler لإنشاء وطباعة الجداول
+            SymbolTableFiller pyFiller = new SymbolTableFiller();
+            pyFiller.fillAndPrint(pyProgramAST);
+        } catch (Exception e) {
+            System.err.println("Error during execution: " + e.getMessage());
+            e.printStackTrace();
+        }
+
 
         System.out.println("\n========== Jinja/HTML Visitor Test ==========");
 
@@ -367,6 +369,33 @@ public class Main {
             System.err.println("Jinja Error: " + e.getMessage());
             e.printStackTrace();
         }
+        //تجربة السيمبل تيبل الخاص بالجينجا واخواتا
+        //1. اقرأ ملف .html (أو .jinja) للاختبار - بدّل المسار حسب ملفك
+        String inputFile = "C:/Users/DELL/Desktop/new_compiler/compiler_new/test/displayProducts.txt";
+// (انسخ المسار الفعلي الذي يظهر لك وضعه هنا)
+
+        // 2. Lexer + Parser (ANTLR)
+        jinjaLexer lexer = new jinjaLexer(CharStreams.fromFileName(inputFile));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        jinjaParser parser = new jinjaParser(tokens);
+
+        jinjaParser.ProgContext tree = parser.prog();
+
+        // 3. Visitor الأساسي - يبني AST
+        visitor v = new visitor();
+        Program astRoot = (Program) v.visit(tree);
+
+        // 4. طباعة AST (يلي أنت أصلاً سويتها)
+        System.out.println("===== AST =====");
+        System.out.println(astRoot.toString());
+
+        // 5. SymbolTableBuilder - يبني جدول الرموز من فوق الـ AST الجاهزة
+        SymbolTableBuilder stBuilder = new SymbolTableBuilder();
+        stBuilder.build(astRoot);
+
+        // 6. طباعة جدول الرموز
+        System.out.println("===== SYMBOL TABLE =====");
+        System.out.println(stBuilder.printTable());
     }
 }
 
