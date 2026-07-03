@@ -164,6 +164,20 @@ public class Main {
                             "    print(user_name)\n" +
                             "    return total\n" +
                             "\n" +
+                            "result = Z + y\n" +
+                            "x = 5\n" +
+                            "x = \"hello\"\n" +
+                            "a = 5\n" +
+                            "b = \"hello\"\n" +
+                            "c = a + b\n" +
+                            "l = 5\n" +
+                            "l = 10\n" +
+                            "calculate_bill = 50\n" +
+                            "return 10\n" +
+                            "div = 10 / 0\n" +
+                            "age = 20\n" +
+                            "age = None\n" +
+
                             "final_price = calculate_bill(100, 2)\n" +
                             "print(final_price)";
 

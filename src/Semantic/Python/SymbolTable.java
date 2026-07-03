@@ -25,13 +25,23 @@ public class SymbolTable {
 
     public void define(Symbol symbol) {
 
-        if (table.containsKey(symbol.name)) {
-            System.err.println("Semantic Error: Variable '" + symbol.name +
-                    "' is already defined in scope '" + scopeName +
-                    "' at line " + symbol.line);
-        } else {
-            table.put(symbol.name, symbol);
+        Symbol old = table.get(symbol.name);
+
+        if (old != null) {
+
+            System.err.println(
+                    "Semantic Error: Duplicate Definition -> Variable '"
+                            + symbol.name
+                            + "' first defined at line "
+                            + old.line
+                            + " and redefined at line "
+                            + symbol.line
+            );
+
+            return;
         }
+
+        table.put(symbol.name, symbol);
     }
 
     public String getScopeName() { return scopeName; }

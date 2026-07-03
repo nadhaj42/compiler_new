@@ -14,6 +14,7 @@ import java.util.List;
 public class SymbolTableFiller {
     private SymbolTable currentScope;
     private List<SymbolTable> allScopes;
+    private boolean insideFunction = false;
 
     public SymbolTableFiller() {
         allScopes = new ArrayList<>();
@@ -69,8 +70,32 @@ public class SymbolTableFiller {
             return inferBinaryNumericType(pm.left, pm.right);
         }
         if (unwrapped instanceof MulDiv) {
+
             MulDiv md = (MulDiv) unwrapped;
-            return inferBinaryNumericType(md.left, md.right);
+
+            PythonNode right =
+                    unwrap(md.right);
+
+            if (right instanceof AST.Python.Statement.test.Atom1.Number) {
+
+                AST.Python.Statement.test.Atom1.Number n =
+                        (AST.Python.Statement.test.Atom1.Number) right;
+
+                if (n.value == 0) {
+
+                    System.err.println(
+                            "Semantic Error: Division by zero at line "
+                                    + n.line
+                    );
+
+                    return "TypeError";
+                }
+            }
+
+            return inferBinaryNumericType(
+                    md.left,
+                    md.right
+            );
         }
 
 
@@ -80,12 +105,31 @@ public class SymbolTableFiller {
         }
 
         if (unwrapped instanceof Variable) {
-            Symbol sym = currentScope.lookup(((Variable) unwrapped).name);
-            if (sym == null) return "Unknown";
-            if (sym.type.equals("Parameter") || sym.type.equals("Variable (For Loop)")
-                    || sym.type.equals("Local Var") || sym.type.equals("Function")) {
+
+            Variable var = (Variable) unwrapped;
+
+            Symbol sym = currentScope.lookup(var.name);
+
+            if (sym == null) {
+
+                System.err.println(
+                        "Semantic Error: Undefined Variable '"
+                                + var.name
+                                + "' at line "
+                                + var.line
+                );
+
+                return "Undefined";
+            }
+
+            if (sym.type.equals("Parameter")
+                    || sym.type.equals("Variable (For Loop)")
+                    || sym.type.equals("Local Var")
+                    || sym.type.equals("Function")) {
+
                 return "Unknown";
             }
+
             return sym.type;
         }
 
@@ -97,12 +141,46 @@ public class SymbolTableFiller {
     }
 
     //
-    private String inferBinaryNumericType(PythonNode left, PythonNode right) {
+    private String inferBinaryNumericType(
+            PythonNode left,
+            PythonNode right) {
+
         String leftType = inferType(left);
+
         String rightType = inferType(right);
 
-        if (leftType.equals("Unknown") || rightType.equals("Unknown")) return "Unknown";
-        if (leftType.equals("Float") || rightType.equals("Float")) return "Float";
+        if (leftType.equals("Undefined")
+                || rightType.equals("Undefined")) {
+
+            return "Undefined";
+        }
+
+        boolean leftNumeric =
+                leftType.equals("Integer")
+                        || leftType.equals("Float");
+
+        boolean rightNumeric =
+                rightType.equals("Integer")
+                        || rightType.equals("Float");
+
+        if (!leftNumeric || !rightNumeric) {
+
+            System.err.println(
+                    "Semantic Error: Type Error -> Cannot operate between "
+                            + leftType
+                            + " and "
+                            + rightType
+            );
+
+            return "TypeError";
+        }
+
+        if (leftType.equals("Float")
+                || rightType.equals("Float")) {
+
+            return "Float";
+        }
+
         return "Integer";
     }
 
@@ -125,9 +203,61 @@ public class SymbolTableFiller {
             String dataType = inferType(assign.expr);
 
             if (assign.test != null && assign.test.atom instanceof Variable) {
+
                 Variable var = (Variable) assign.test.atom;
-                currentScope.define(new Symbol(var.name, dataType, var.line));
-            } else {
+
+                Symbol old = currentScope.lookup(var.name);
+
+                if (old != null
+                        && old.type.equals("Function")) {
+
+                    System.err.println(
+                            "Semantic Error: Cannot assign to function '"
+                                    + var.name
+                                    + "' at line "
+                                    + var.line
+                    );
+
+                    return;
+                }
+                if (old != null
+                        && !old.type.equals(dataType)
+                        && !old.type.equals("Unknown")
+                        && !dataType.equals("Unknown")) {
+
+                    if (dataType.equals("None")) {
+
+                        System.err.println(
+                                "Semantic Error: Cannot assign None to typed variable '"
+                                        + var.name
+                                        + "' at line "
+                                        + var.line
+                        );
+
+                    } else {
+
+                        System.err.println(
+                                "Semantic Error: Type Mismatch -> Variable '"
+                                        + var.name
+                                        + "' was "
+                                        + old.type
+                                        + " and assigned "
+                                        + dataType
+                                        + " at line "
+                                        + var.line
+                        );
+                    }
+                }
+
+                currentScope.define(
+                        new Symbol(
+                                var.name,
+                                dataType,
+                                var.line
+                        )
+                );
+            }
+            else {
                 walk(assign.test);
             }
         }
@@ -143,6 +273,7 @@ public class SymbolTableFiller {
 
             SymbolTable parentScope = currentScope;
             currentScope = childScope;
+            insideFunction = true;
 
             if (func.parameters != null && func.parameters.parameters != null) {
                 for (Parameter param : func.parameters.parameters) {
@@ -152,6 +283,7 @@ public class SymbolTableFiller {
                 }
             }
             walk(func.statement);
+            insideFunction = false;
             currentScope = parentScope;
         }
         else if (node instanceof For) {
@@ -178,11 +310,30 @@ public class SymbolTableFiller {
                 for (Suite s : ifStmt.elseBranch.statements) walk(s);
             }
         }
+
+        else if (node instanceof Return) {
+
+            Return r = (Return) node;
+
+            if (!insideFunction) {
+
+                System.err.println(
+                        "Semantic Error: Return outside function at line "
+                                + r.line
+                );
+            }
+
+            if (r.expr != null) {
+                walk(r.expr);
+            }
+        }
         else if (node instanceof While) {
             While whileStmt = (While) node;
             walk(whileStmt.expr);
             walk(whileStmt.statement);
         }
+
+
         else if (node instanceof ListComprehension) {
             ListComprehension lc = (ListComprehension) node;
             SymbolTable lcScope = new SymbolTable("List Comprehension", currentScope);
