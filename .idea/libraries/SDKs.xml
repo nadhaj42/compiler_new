@@ -1,7 +1,8 @@
 <component name="libraryTable">
   <library name="SDKs">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../antlr/antlr-4.13.2-complete.jar!/" />
+      <root url="jar://$USER_HOME$/antlr/antlr-4.13.2-complete.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../SDKs/Antlr/antlr-4.13.2-complete.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

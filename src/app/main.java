@@ -28,7 +28,8 @@ class Main {
         pythonParser parser = new pythonParser(tokens);
         ParseTree tree = parser.prog();
 // طباعة الشجرة بشكل منسق (Lisp-style format)
-        System.out.println(tree.toStringTree(parser).replace(" (", "\n("));//        PythonVisitor visitor = new PythonVisitor();
+        System.out.println(tree.toStringTree(parser).replace(" (", "\n("));
+        //        PythonVisitor visitor = new PythonVisitor();
 //        AST.Python.PythonNode root = visitor.visit(tree);
 //
 //        Program ast = (Program) root;

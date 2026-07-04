@@ -1,4 +1,4 @@
-
+import Semantic.htmlCssJInja.DataType;
 import Semantic.htmlCssJInja.SymbolTableBuilder;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
@@ -9,149 +9,22 @@ import antlr2.jinjaParser;
 import Visitor.Python.PythonVisitor;
 import Visitor.html_css_jinja.visitor;
 import AST.html_css_jinja.*;
-import AST.Python.PythonNode;
 import Semantic.Python.SymbolTableFiller;
-// استيراد مكتبات ANTLR الأساسية
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-
 
 public class Main {
     public static void main(String[] args) throws Exception {
 
-//        String code = """
-//
-//        x = 5
-//        y = 3.14
-//        name = "hello"
-//        flag = True
-//        nothing = None
-//
-//
-//        z = x + y
-//        w = x * 2 - 1
-//
-//
-//        result = x > 3 and flag
-//        result2 = x == 5 or y < 10
-//        result3 = not flag
-//
-//        print(x)
-//        print(x, y, name)
-//
-//
-//        if x > 3:
-//            y = 1
-//        elif x == 3:
-//           y = 2
-//        else:
-//            y = 0
-//
-//
-//        while x > 0:
-//            x = x - 1
-//
-//
-//        for i in myList:
-//            print(i)
-//
-//
-//       myList = [1, 2, 3]
-//
-//
-//       myDict = {"key": "value"}
-//
-//
-//        def add(a, b):
-//            return a + b
-//
-//
-//        result = add(x, y)
-//
-//
-//       obj.name
-//
-//        myList[0]
-//
-//
-//        import math
-//        from os import path
-//
-//
-//        with open("file") as f:
-//           print(f)
-//
-//        squares = [x * x for x in myList]
-//        """;
+        //runPythonPart();
+        runJinjaPart();
 
+    }
 
-//        String code = """
-//        @myDecorator(arg1, arg2)
-//        def myFunc():
-//            return 1
-//
-//        result = add(x=5, y=10)
-//        """;
-//        String code = """
-//                def outer(x):
-//                    def inner(y):
-//                        return x + y
-//                    return inner(x)
-//
-//                def greet(name, msg="hello"):
-//                    print(name)
-//
-//                @myDecorator
-//                def myFunc():
-//                    return 1
-//
-//                result = obj.method(x)[0].name
-//
-//                matrix = [[1, 2], [3, 4]]
-//                data = {"key": [1, 2, 3]}
-//
-//                x = -5
-//                y = +x
-//
-//                evens = [x for x in myList if x > 0]
-//
-//                def check(x):
-//                    while x > 0:
-//                        if x == 5:
-//                            return x
-//                        x = x - 1
-//
-//                from os.path import join
-//
-//                result = (x + y) * (z - 1)
-//                flag = not x > 5 and y < 10 or z == 0
-//                """;
-
-//        // 1. Lexer
-//        CharStream input = CharStreams.fromString(code);
-//        pythonLexer lexer = new pythonLexer(input);
-//        CommonTokenStream tokens = new CommonTokenStream(lexer);
-//
-//        // 2. Parser
-//        pythonParser parser = new pythonParser(tokens);
-//        ParseTree tree = parser.prog();
-//
-//        // 3. Visitor — يبني الـ AST
-//        PythonVisitor visitor = new PythonVisitor();
-//        PythonNode ast = visitor.visit(tree);
-//
-//        // 4. اطبع الـ AST
-//        if (ast != null) {
-//            System.out.println(ast.toString());
-//        } else {
-//            System.out.println("AST is null!");
-//        }
-//
-//
-//        //كود الsymboltable
+    // ==========================================================
+    // PYTHON PART
+    // ==========================================================
+    private static void runPythonPart() {
+        System.out.println("========== Python Symbol Table Test ==========\n");
         try {
-
             String pythonCode =
                     "# Global variables\n" +
                             "tax_rate = 0.15\n" +
@@ -177,239 +50,236 @@ public class Main {
                             "div = 10 / 0\n" +
                             "age = 20\n" +
                             "age = None\n" +
-
                             "final_price = calculate_bill(100, 2)\n" +
                             "print(final_price)";
-
-            System.out.println("--- Processing Python Code ---\n");
-
-            // 2. إعداد الـ Lexer والـ Parser
-
 
             pythonLexer pyLexer = new pythonLexer(CharStreams.fromString(pythonCode));
             CommonTokenStream pyTokens = new CommonTokenStream(pyLexer);
             pythonParser pyParser = new pythonParser(pyTokens);
-
-
             ParseTree pyTree = pyParser.prog();
 
-            //  استخدام  Visitor الخاص ببايثون لبناء الـ AST
             PythonVisitor pyVisitor = new PythonVisitor();
             AST.Python.Program pyProgramAST = (AST.Python.Program) pyVisitor.visit(pyTree);
 
-            //  تشغيل الـ Symbol Table Filler لإنشاء وطباعة الجداول
             SymbolTableFiller pyFiller = new SymbolTableFiller();
             pyFiller.fillAndPrint(pyProgramAST);
+
         } catch (Exception e) {
-            System.err.println("Error during execution: " + e.getMessage());
+            System.err.println("Error during Python processing: " + e.getMessage());
             e.printStackTrace();
         }
+    }
 
-
-        System.out.println("\n========== Jinja/HTML Visitor Test ==========");
-
-//        String jinjaCode = """
-//                <html>
-//                <head><title>Test</title></head>
-//                <body>
-//                    <div class="{{ myClass }}">
-//                        {% if user %}
-//                            <p>Hello {{ user.name }}</p>
-//                        {% else %}
-//                            <p>Hello Guest</p>
-//                        {% endif %}
-//                        {% for item in items %}
-//                            <li>{{ item | upper }}</li>
-//                        {% endfor %}
-//                    </div>
-//                </body>
-//                </html>
-//                """;
-
+    // ==========================================================
+    // JINJA / HTML / CSS PART
+    // ==========================================================
+    private static void runJinjaPart() {
+        System.out.println("\n========== Jinja/HTML Semantic Test ==========\n");
 
         String jinjaCode = """
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <link rel='stylesheet' href='/static/style.css'>
-            <style>
-                body {
-                    background-color: #fff;
-                    font-size: 16px;
-                }
-                .container {
-                    max-width: 1200px;
-                }
-            </style>
-        </head>
-        <body>
-
-            <!-- 1. Basic Expression -->
-            <h1>{{ title }}</h1>
-
-            <!-- 2. Member Access -->
-            <p>{{ user.name }}</p>
-
-            <!-- 3. Index Access -->
-            <p>{{ items[0] }}</p>
-
-            <!-- 4. Filter simple -->
-            <p>{{ name | upper }}</p>
-
-            <!-- 5. Filter with args -->
-            <p>{{ name | truncate(50) }}</p>
-
-            <!-- 6. Binary Operation -->
-            <p>{{ x + y }}</p>
-            <p>{{ count > 0 }}</p>
-
-            <!-- 7. Function Call -->
-            <p>{{ range(10) }}</p>
-
-            <!-- 8. Ternary Expression -->
-            <p>{{ "yes" if flag else "no" }}</p>
-
-            <!-- 9. Simple if -->
-            {% if user %}
-                <p>Logged in</p>
-            {% endif %}
-
-            <!-- 10. if / else -->
-            {% if score > 90 %}
-                <p>Excellent</p>
-            {% else %}
-                <p>Keep trying</p>
-            {% endif %}
-
-            <!-- 11. if / elif / else -->
-            {% if score > 90 %}
-                <p>A</p>
-            {% elif score > 70 %}
-                <p>B</p>
-            {% elif score > 50 %}
-                <p>C</p>
-            {% else %}
-                <p>F</p>
-            {% endif %}
-
-            <!-- 12. Simple for -->
-            {% for item in items %}
-                <li>{{ item }}</li>
-            {% endfor %}
-
-            <!-- 13. For with filter -->
-            {% for user in users %}
-                <p>{{ user.name | upper }}</p>
-            {% endfor %}
-
-            <!-- 14. Nested if inside for -->
-            {% for product in products %}
-                {% if product.available %}
-                    <div>{{ product.name }}</div>
-                {% else %}
-                    <div>Sold Out</div>
-                {% endif %}
-            {% endfor %}
-
-            <!-- 15. Nested for inside if -->
-            {% if showList %}
-                <ul>
-                {% for item in items %}
-                    <li>{{ item }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-
-            <!-- 16. Expression in attribute -->
-            <div class="{{ myClass }}">content</div>
-
-            <!-- 17. Mixed attribute text + expression -->
-            <div class="prefix-{{ name }}-suffix">content</div>
-
-            <!-- 18. Multiple attributes with expressions -->
-            <input type="text" name="{{ fieldName }}" value="{{ fieldValue }}">
-
-            <!-- 19. Boolean attribute -->
-            <input type="checkbox" checked>
-
-            <!-- 20. Self closing -->
-            <br>
-            <img src="{{ imageUrl }}" alt="{{ imageAlt }}">
-
-            <!-- 21. Chained member access -->
-            <p>{{ user.profile.avatar }}</p>
-
-            <!-- 22. Chained filter -->
-            <p>{{ name | lower | truncate(20) }}</p>
-
-            <!-- 23. Complex expression in if -->
-            {% if user.age > 18 and user.verified %}
-                <p>Access granted</p>
-            {% endif %}
-
-            <!-- 24. For with multiple vars -->
-            {% for key, value in data %}
-                <p>{{ key }}: {{ value }}</p>
-            {% endfor %}
-
-        </body>
-        </html>
+                <!DOCTYPE html>
+                                                                                  <html lang="ar">
+                                                                                  <head>
+                                                                                  <meta charset="UTF-8">
+                                                                                  <title>عرض المنتجات</title>
+                                                                                  <style>
+                                                                                  /* ===== عام ===== */
+                                                                                  body {
+                                                                                      font-family: Arial, sans-serif;
+                                                                                      margin: 0;
+                                                                                      padding: 0;
+                                                                                      background-color: #f7f7f7;
+                                                                                      direction: rtl;
+                                                                                  }
+                
+                                                                                  /* ===== Navbar ===== */
+                                                                                  .navbar {
+                                                                                      background-color: #333;
+                                                                                      color: #fff;
+                                                                                      display: flex;
+                                                                                      justify-content: space-between;
+                                                                                      align-items: center;
+                                                                                      padding: 10px 20px;
+                                                                                  }
+                                                                                  .navbar .logo {
+                                                                                      font-size: 1.8em;
+                                                                                      font-weight: bold;
+                                                                                  }
+                                                                                  .nav-links a {
+                                                                                      color: #fff;
+                                                                                      text-decoration: none;
+                                                                                      margin-left: 15px;
+                                                                                      font-weight: 500;
+                                                                                      transition: color 0.3s;
+                                                                                  }
+                                                                                  .nav-links a:hover {
+                                                                                      color: #28a745;
+                                                                                      text-decoration: underline;
+                                                                                  }
+                
+                                                                                  /* ===== الصفحة ===== */
+                                                                                  .page {
+                                                                                      padding: 30px;
+                                                                                      max-width: 1000px;
+                                                                                      margin: auto;
+                                                                                      display: grid;
+                                                                                      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                                                                                      gap: 20px;
+                                                                                  }
+                
+                                                                                  /* ===== بطاقة المنتج ===== */
+                                                                                  .product-card {
+                                                                                      background-color: #fff;
+                                                                                      border-radius: 12px;
+                                                                                      padding: 20px;
+                                                                                      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                                                                      transition: transform 0.3s, box-shadow 0.3s;
+                                                                                      display: flex;
+                                                                                      flex-direction: column;
+                                                                                      align-items: center;
+                                                                                      text-align: center;
+                                                                                  }
+                                                                                  .product-card:hover {
+                                                                                      transform: translateY(-5px);
+                                                                                      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+                                                                                  }
+                                                                                  .product-card img {
+                                                                                      width: 100%;
+                                                                                      max-width: 200px;
+                                                                                      height: auto;
+                                                                                      border-radius: 10px;
+                                                                                      margin-bottom: 15px;
+                                                                                  }
+                                                                                  .product-card h2 {
+                                                                                      margin: 10px 0;
+                                                                                      font-size: 1.5em;
+                                                                                  }
+                                                                                  .product-card p {
+                                                                                      margin: 5px 0;
+                                                                                      font-size: 1em;
+                                                                                      color: #555;
+                                                                                  }
+                                                                                  .price {
+                                                                                      color: #28a745;
+                                                                                      font-weight: bold;
+                                                                                      font-size: 1.2em;
+                                                                                      margin-bottom: 10px;
+                                                                                  }
+                                                                                  .product-card a {
+                                                                                      display: inline-block;
+                                                                                      margin-top: 10px;
+                                                                                      padding: 8px 12px;
+                                                                                      background-color: #28a745;
+                                                                                      color: #fff;
+                                                                                      border-radius: 6px;
+                                                                                      text-decoration: none;
+                                                                                      transition: background 0.3s;
+                                                                                  }
+                                                                                  .product-card a:hover {
+                                                                                      background-color: #218838;
+                                                                                  }
+                                                                                  </style>
+                                                                                  </head>
+                                                                                  <body>
+                
+                                                                                  <nav class="navbar">
+                                                                                      <div class="logo">متجري</div>
+                                                                                      <div class="nav-links">
+                                                                                          <a href="/add">إضافة منتج</a>
+                                                                                          <a href="/view">عرض المنتجات</a>
+                                                                                      </div>
+                                                                                  </nav>
+                
+                                                                                  <div class="page">
+                                                                                      {% for product in products %}
+                                                                                      <div class="product-card">
+                                                                                          <h2>{{ product.name }}</h2>
+                                                                                          {% if product.image_url %}
+                                                                                          <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                                                                                          {% endif %}
+                                                                                          <p class="price">{{ product.price }} ر.س</p>
+                                                                                          <p>{{ product.description }}</p>
+                                                                                          <a href="/details/{{ product.id }}">تفاصيل المنتج</a>
+                
+                                                                                          <!-- BUG 1: Division By Zero -->
+                                                                                          <p>{{ product.price / 0 }}</p>
+                
+                                                                                          <!-- BUG 2: Type Mismatch -->
+                                                                                          {% if product.price > "expensive" %}
+                                                                                          <p>Too expensive</p>
+                                                                                          {% endif %}
+                
+                                                                                          <!-- BUG 3: Scope Error (nested for shadows outer 'product') -->
+                                                                                          {% for product in product.relatedItems %}
+                                                                                              <p>{{ product }}</p>
+                                                                                          {% endfor %}
+                
+                                                                                      </div>
+                                                                                      {% endfor %}
+                
+                                                                                      <!-- BUG 4: Undefined Variable (product used after its for-loop closed) -->
+                                                                                      <p>{{ product.name }}</p>
+                
+                                                                                      <!-- BUG 5: Duplicate Definition -->
+                                                                                      {% for cat, cat in categories %}
+                                                                                          <p>{{ cat }}</p>
+                                                                                      {% endfor %}
+                
+                                                                                      <!-- BUG 6: Type Error (discount inferred as NUMBER via round, then used as iterable) -->
+                                                                                      <p>{{ discount | round }}</p>
+                                                                                      {% for d in discount %}
+                                                                                          <p>{{ d }}</p>
+                                                                                      {% endfor %}
+                
+                                                                                  </div>
+                
+                                                                                  </body>
+                                                                                  </html>
+                
         """;
 
-
         try {
-            // 1. Lexer
+            // 1. Lexer + Parser
             CharStream jinjaInput = CharStreams.fromString(jinjaCode);
             jinjaLexer jLexer = new jinjaLexer(jinjaInput);
-
-            // 2. Parser
             CommonTokenStream jinjaTokens = new CommonTokenStream(jLexer);
             jinjaParser jParser = new jinjaParser(jinjaTokens);
             jinjaParser.ProgContext jinjaTree = jParser.prog();
 
-            // 3. Visitor — يبني الـ AST
+            // 2. Visitor - builds the AST
             visitor jinjaVisitor = new visitor();
-            Node jinjaAst = jinjaVisitor.visit(jinjaTree);
+            Program astRoot = (Program) jinjaVisitor.visit(jinjaTree);
 
-            // 4. اطبع الـ AST
-            System.out.println("\n--- Jinja AST ---");
-            if (jinjaAst != null) {
-                System.out.println(jinjaAst.toString());
+            System.out.println("--- Jinja AST ---");
+            if (astRoot != null) {
+                System.out.println(astRoot.toString());
             } else {
                 System.out.println("Jinja AST is null!");
+                return;
+            }
+
+            // 3. SymbolTableBuilder - builds the table + runs all semantic checks
+            SymbolTableBuilder stBuilder = new SymbolTableBuilder();
+            stBuilder.registerFlaskVariable("products", DataType.LIST);
+
+            stBuilder.build(astRoot);
+            stBuilder.checkMissingFlaskVariables();
+
+            // 4. Print Symbol Table
+            System.out.println("===== SYMBOL TABLE =====");
+            System.out.println(stBuilder.printTable());
+
+            // 5. Print Semantic Errors
+            System.out.println("===== SEMANTIC ERRORS =====");
+            if (stBuilder.reporter.hasErrors()) {
+                System.err.println(stBuilder.reporter.printErrors());
+            } else {
+                System.out.println("No semantic errors found.");
             }
 
         } catch (Exception e) {
             System.err.println("Jinja Error: " + e.getMessage());
             e.printStackTrace();
         }
-        //تجربة السيمبل تيبل الخاص بالجينجا واخواتا
-        //1. اقرأ ملف .html (أو .jinja) للاختبار - بدّل المسار حسب ملفك
-        String inputFile = "C:/Users/DELL/Desktop/new_compiler/compiler_new/test/displayProducts.txt";
-// (انسخ المسار الفعلي الذي يظهر لك وضعه هنا)
-
-        // 2. Lexer + Parser (ANTLR)
-        jinjaLexer lexer = new jinjaLexer(CharStreams.fromFileName(inputFile));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        jinjaParser parser = new jinjaParser(tokens);
-
-        jinjaParser.ProgContext tree = parser.prog();
-
-        // 3. Visitor الأساسي - يبني AST
-        visitor v = new visitor();
-        Program astRoot = (Program) v.visit(tree);
-
-        // 4. طباعة AST (يلي أنت أصلاً سويتها)
-        System.out.println("===== AST =====");
-        System.out.println(astRoot.toString());
-
-        // 5. SymbolTableBuilder - يبني جدول الرموز من فوق الـ AST الجاهزة
-        SymbolTableBuilder stBuilder = new SymbolTableBuilder();
-        stBuilder.build(astRoot);
-
-        // 6. طباعة جدول الرموز
-        System.out.println("===== SYMBOL TABLE =====");
-        System.out.println(stBuilder.printTable());
     }
 }
-
