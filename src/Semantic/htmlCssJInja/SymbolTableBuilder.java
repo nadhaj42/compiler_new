@@ -34,6 +34,9 @@ public class SymbolTableBuilder {
     // names of for-loop variables currently open (stack) - for Scope Error (shadowing) check
     private Deque<String> activeForVarNames = new ArrayDeque<>();
 
+    // names that already produced an UNDEFINED_VARIABLE error - excluded from Missing Flask Variable check
+    private Set<String> undefinedUsageNames = new HashSet<>();
+
     public SymbolTableBuilder() {
         this.table = new SymbolTable();
         this.allScopes = new ArrayList<>();
@@ -248,6 +251,7 @@ public class SymbolTableBuilder {
                 reporter.report(SemanticErrorType.UNDEFINED_VARIABLE,
                         "Variable '" + id.text + "' is used outside the scope of the for-loop it was defined in",
                         id.line);
+                undefinedUsageNames.add(id.text);
             }
             // unknown variable => most likely coming from Flask (external context) => UNKNOWN
             Symbol sym = new Symbol(id.text, SymbolKind.VARIABLE, DataType.UNKNOWN,
@@ -287,6 +291,9 @@ public class SymbolTableBuilder {
         // type inference: if the filter is a known numeric filter, the input is likely NUMBER
         inferFilterInputType(filter.input, filter.filterName);
 
+        // ← NEW: check if the filter name is a recognized Jinja filter
+        checkUnknownFilter(filter);
+
         // the filter's own name
         Symbol existing = table.resolve(filter.filterName);
         if (existing == null) {
@@ -304,6 +311,24 @@ public class SymbolTableBuilder {
     }
 
     private static final List<String> NUMERIC_FILTERS = List.of("round", "abs", "int", "float");
+
+    // whitelist of filters recognized as valid built-in Jinja filters
+    private static final Set<String> KNOWN_FILTERS = new HashSet<>(List.of(
+            "upper", "lower", "capitalize", "title", "trim", "truncate",
+            "round", "abs", "int", "float", "length", "count",
+            "default", "join", "first", "last", "reverse", "sort",
+            "replace", "safe", "escape", "e", "list", "string", "urlencode"
+    ));
+
+    // ===================== Semantic Check: Unknown Filter =====================
+
+    private void checkUnknownFilter(Filter filter) {
+        if (!KNOWN_FILTERS.contains(filter.filterName)) {
+            reporter.report(SemanticErrorType.UNKNOWN_FILTER,
+                    "Filter '" + filter.filterName + "' is not a recognized Jinja filter",
+                    filter.line);
+        }
+    }
 
     // if a variable is used as an iterable in a for-loop, infer it's a LIST (unless its type is already known precisely)
     private void inferIterableType(ExpressionNode iterable) {
@@ -426,9 +451,7 @@ public class SymbolTableBuilder {
     // call this after build() has fully completed
     public void checkMissingFlaskVariables() {
         for (Symbol s : table.globalScope.symbols.values()) {
-            // إذا كان المتغير من نوع UNKNOWN، فهذا يعني أننا لم نحدد نوعه (أي أنه لم يُسجل عبر Flask)
-            // إذا كان معروف النوع (LIST/DICT/etc)، فهذا يعني أننا نعرفه مسبقاً ولا نحتاج للتبليغ عنه
-            if (s.kind == SymbolKind.VARIABLE && s.dataType == DataType.UNKNOWN) {
+            if (s.kind == SymbolKind.VARIABLE && !undefinedUsageNames.contains(s.name)) {
                 reporter.report(SemanticErrorType.MISSING_FLASK_VARIABLE,
                         "Variable '" + s.name + "' is not defined inside the template; it must be passed from Flask via render_template",
                         s.line);
@@ -436,11 +459,11 @@ public class SymbolTableBuilder {
         }
     }
 
+    // used to pre-register a variable as coming from Flask (skips the Missing Flask Variable report for it)
     public void registerFlaskVariable(String varName, DataType type) {
         Symbol sym = new Symbol(varName, SymbolKind.VARIABLE, type, table.globalScope, 0);
         table.globalScope.symbols.put(varName, sym);
     }
-
 
     //  Printing
 
