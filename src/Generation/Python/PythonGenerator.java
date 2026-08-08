@@ -17,17 +17,33 @@ import AST.Python.Statement.test.Atom1.Variable;
 
 import java.util.*;
 public class PythonGenerator {
-    private static final Set<String> BUILTIN_FUNCS = Set.of("len", "range", "str", "int", "float", "abs", "print");
+    private static final Set<String> BUILTIN_FUNCS = Set.of(
+            "len", "range", "str", "int", "float", "abs", "print", "Flask");
     private final StringBuilder capturedOutput = new StringBuilder();
+
+    private final List<String> skippedStatements = new ArrayList<>();
+
     public Environment execute(Program program) {
         Environment global = new Environment(null);
+
+        global.define("__name__", "__main__");
+
         if (program != null && program.statements != null) {
             for (Statement stmt : program.statements) {
-                execStatement(stmt, global);
+                try {
+                    execStatement(stmt, global);
+                } catch (RuntimeException e) {
+                    skippedStatements.add(e.getMessage());
+                }
             }
         }
         return global;
     }
+
+    public List<String> getSkippedStatements() {
+        return skippedStatements;
+    }
+
     public String getCapturedOutput() {
         return capturedOutput.toString();
     }
@@ -362,6 +378,12 @@ public class PythonGenerator {
                 capturedOutput.append(line).append("\n");
                 return null;
             }
+            case "Flask": {
+
+                Map<Object, Object> appStub = new LinkedHashMap<>();
+                appStub.put("__type__", "FlaskApp");
+                return appStub;
+            }
             default:
                 return null;
         }
@@ -370,7 +392,7 @@ public class PythonGenerator {
     private Object getAttribute(Object base, String name) {
         if (base instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) base;
-            if (map.containsKey(name)) return map.get(name); // حقل بيانات فعلي (زي product.name)
+            if (map.containsKey(name)) return map.get(name);
             if (DICT_METHODS.contains(name)) return new BoundMethod(base, name);
             return null;
         }

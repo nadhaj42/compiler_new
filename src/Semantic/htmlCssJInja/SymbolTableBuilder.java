@@ -37,6 +37,11 @@ public class SymbolTableBuilder {
     // names that already produced an UNDEFINED_VARIABLE error - excluded from Missing Flask Variable check
     private Set<String> undefinedUsageNames = new HashSet<>();
 
+    // ✅ إضافة: أسماء المتحولات يلي انسجّلت صراحة عبر registerFlaskVariable() قبل build()
+    // (يعني معروفة ومشروعة، جاية فعلياً من app.py). checkMissingFlaskVariables() لازم
+    // تتجاهلها، وتبلّغ بس عن متحولات اكتُشفت تلقائياً أثناء المسح ومالها أي تسجيل مسبق.
+    private Set<String> preRegisteredFlaskVariables = new HashSet<>();
+
     public SymbolTableBuilder() {
         this.table = new SymbolTable();
         this.allScopes = new ArrayList<>();
@@ -448,9 +453,10 @@ public class SymbolTableBuilder {
 
     // ===================== Semantic Checks: Missing Flask Variable =====================
 
-    // call this after build() has fully completed
     public void checkMissingFlaskVariables() {
         for (Symbol s : table.globalScope.symbols.values()) {
+            if (preRegisteredFlaskVariables.contains(s.name)) continue;
+
             if (s.kind == SymbolKind.VARIABLE && !undefinedUsageNames.contains(s.name)) {
                 reporter.report(SemanticErrorType.MISSING_FLASK_VARIABLE,
                         "Variable '" + s.name + "' is not defined inside the template; it must be passed from Flask via render_template",
@@ -459,10 +465,10 @@ public class SymbolTableBuilder {
         }
     }
 
-    // used to pre-register a variable as coming from Flask (skips the Missing Flask Variable report for it)
     public void registerFlaskVariable(String varName, DataType type) {
         Symbol sym = new Symbol(varName, SymbolKind.VARIABLE, type, table.globalScope, 0);
         table.globalScope.symbols.put(varName, sym);
+        preRegisteredFlaskVariables.add(varName);
     }
 
     //  Printing

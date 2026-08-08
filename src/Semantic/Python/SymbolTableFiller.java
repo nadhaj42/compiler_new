@@ -7,7 +7,6 @@ import AST.Python.Statement.Expr.LogicalExpr.*;
 import AST.Python.Statement.test.*;
 import AST.Python.Statement.test.Atom1.*;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,40 +63,28 @@ public class SymbolTableFiller {
         if (unwrapped instanceof AST.Python.Statement.test.Atom1.DistLiteral) return "Dict";
         if (unwrapped instanceof AST.Python.Statement.test.Atom1.SetLiteral) return "Set";
 
-
         if (unwrapped instanceof PlusMinus) {
             PlusMinus pm = (PlusMinus) unwrapped;
             return inferBinaryNumericType(pm.left, pm.right);
         }
         if (unwrapped instanceof MulDiv) {
-
             MulDiv md = (MulDiv) unwrapped;
-
-            PythonNode right =
-                    unwrap(md.right);
+            PythonNode right = unwrap(md.right);
 
             if (right instanceof AST.Python.Statement.test.Atom1.Number) {
-
                 AST.Python.Statement.test.Atom1.Number n =
                         (AST.Python.Statement.test.Atom1.Number) right;
 
                 if (n.value == 0) {
-
                     System.err.println(
-                            "Semantic Error: Division by zero at line "
-                                    + n.line
+                            "Semantic Error: Division by zero at line " + n.line
                     );
-
                     return "TypeError";
                 }
             }
 
-            return inferBinaryNumericType(
-                    md.left,
-                    md.right
-            );
+            return inferBinaryNumericType(md.left, md.right);
         }
-
 
         if (unwrapped instanceof Comparison || unwrapped instanceof And
                 || unwrapped instanceof Or || unwrapped instanceof Not) {
@@ -105,28 +92,25 @@ public class SymbolTableFiller {
         }
 
         if (unwrapped instanceof Variable) {
-
             Variable var = (Variable) unwrapped;
-
             Symbol sym = currentScope.lookup(var.name);
 
             if (sym == null) {
-
                 System.err.println(
                         "Semantic Error: Undefined Variable '"
                                 + var.name
                                 + "' at line "
                                 + var.line
                 );
-
                 return "Undefined";
             }
 
-            if (sym.type.equals("Parameter")
-                    || sym.type.equals("Variable (For Loop)")
-                    || sym.type.equals("Local Var")
-                    || sym.type.equals("Function")) {
+            // Fixed logic for Parameters and Loop variables
+            if (sym.type.equals("Parameter") || sym.type.equals("Variable (For Loop)")) {
+                return "Numeric";
+            }
 
+            if (sym.type.equals("Local Var") || sym.type.equals("Function")) {
                 return "Unknown";
             }
 
@@ -140,44 +124,31 @@ public class SymbolTableFiller {
         return "Unknown";
     }
 
-    //
-    private String inferBinaryNumericType(
-            PythonNode left,
-            PythonNode right) {
-
+    private String inferBinaryNumericType(PythonNode left, PythonNode right) {
         String leftType = inferType(left);
-
         String rightType = inferType(right);
 
-        if (leftType.equals("Undefined")
-                || rightType.equals("Undefined")) {
-
+        if (leftType.equals("Undefined") || rightType.equals("Undefined")) {
             return "Undefined";
         }
 
-        boolean leftNumeric =
-                leftType.equals("Integer")
-                        || leftType.equals("Float");
+        // Allow numeric calculations between concrete numbers and dynamic Parameters/Unknown
+        boolean leftNumeric = leftType.equals("Integer") || leftType.equals("Float")
+                || leftType.equals("Unknown") || leftType.equals("Numeric");
 
-        boolean rightNumeric =
-                rightType.equals("Integer")
-                        || rightType.equals("Float");
+        boolean rightNumeric = rightType.equals("Integer") || rightType.equals("Float")
+                || rightType.equals("Unknown") || rightType.equals("Numeric");
 
         if (!leftNumeric || !rightNumeric) {
-
             System.err.println(
                     "Semantic Error: Type Error -> Cannot operate between "
-                            + leftType
-                            + " and "
-                            + rightType
+                            + leftType + " and " + rightType
             );
-
             return "TypeError";
         }
 
-        if (leftType.equals("Float")
-                || rightType.equals("Float")) {
-
+        if (leftType.equals("Float") || rightType.equals("Float")
+                || leftType.equals("Unknown") || leftType.equals("Numeric")) {
             return "Float";
         }
 
@@ -195,6 +166,13 @@ public class SymbolTableFiller {
             Suite s = (Suite) node;
             if (s.statements != null) for (Statement stmt : s.statements) walk(stmt);
         }
+        // ✅ إضافة: بدون هالحالة، أي statement مزينة بـ @decorator (متل @app.route(...))
+        // كانت تُتجاهل بالكامل من طرف walk() (ما بتطابق أي instanceof فوق)،
+        // فمحتواها الداخلي (func_def) ما كان ينزار إطلاقاً.
+        else if (node instanceof Decortator) {
+            Decortator dec = (Decortator) node;
+            walk(dec.statement);
+        }
         else if (node instanceof Assignment) {
             Assignment assign = (Assignment) node;
 
@@ -202,22 +180,25 @@ public class SymbolTableFiller {
 
             String dataType = inferType(assign.expr);
 
-            if (assign.test != null && assign.test.atom instanceof Variable) {
+            // ✅ إصلاح: لازم نتحقق إنو ما في عمليات إضافية (index/attribute access) على الطرف الأيسر.
+            // بدون هالشرط، "product["name"] = ..." كانت تُعامل وكأنها إعادة تعريف كاملة لمتحول "product"
+            // (لأنها بس كانت تفحص إنو الـ atom هو Variable، من دون تفحص وجود operations زيادة عليه)،
+            // فكانت تولّد "Duplicate Definition" غلط لكل كتابة داخل عنصر من قاموس/قائمة موجودة أصلاً.
+            boolean isSimpleVariableAssignment = assign.test != null
+                    && assign.test.atom instanceof Variable
+                    && (assign.test.operations == null || assign.test.operations.isEmpty());
 
+            if (isSimpleVariableAssignment) {
                 Variable var = (Variable) assign.test.atom;
-
                 Symbol old = currentScope.lookup(var.name);
 
-                if (old != null
-                        && old.type.equals("Function")) {
-
+                if (old != null && old.type.equals("Function")) {
                     System.err.println(
                             "Semantic Error: Cannot assign to function '"
                                     + var.name
                                     + "' at line "
                                     + var.line
                     );
-
                     return;
                 }
                 if (old != null
@@ -226,16 +207,13 @@ public class SymbolTableFiller {
                         && !dataType.equals("Unknown")) {
 
                     if (dataType.equals("None")) {
-
                         System.err.println(
                                 "Semantic Error: Cannot assign None to typed variable '"
                                         + var.name
                                         + "' at line "
                                         + var.line
                         );
-
                     } else {
-
                         System.err.println(
                                 "Semantic Error: Type Mismatch -> Variable '"
                                         + var.name
@@ -287,7 +265,6 @@ public class SymbolTableFiller {
             currentScope = parentScope;
         }
         else if (node instanceof For) {
-
             For forStmt = (For) node;
             walk(forStmt.expr);
             if (forStmt.variable != null) {
@@ -296,7 +273,6 @@ public class SymbolTableFiller {
             walk(forStmt.statement);
         }
         else if (node instanceof If) {
-
             If ifStmt = (If) node;
             walk(ifStmt.condition);
             walk(ifStmt.thenBranch);
@@ -310,16 +286,12 @@ public class SymbolTableFiller {
                 for (Suite s : ifStmt.elseBranch.statements) walk(s);
             }
         }
-
         else if (node instanceof Return) {
-
             Return r = (Return) node;
 
             if (!insideFunction) {
-
                 System.err.println(
-                        "Semantic Error: Return outside function at line "
-                                + r.line
+                        "Semantic Error: Return outside function at line " + r.line
                 );
             }
 
@@ -332,8 +304,6 @@ public class SymbolTableFiller {
             walk(whileStmt.expr);
             walk(whileStmt.statement);
         }
-
-
         else if (node instanceof ListComprehension) {
             ListComprehension lc = (ListComprehension) node;
             SymbolTable lcScope = new SymbolTable("List Comprehension", currentScope);
@@ -344,7 +314,6 @@ public class SymbolTableFiller {
                 currentScope.define(new Symbol(lc.variable.name, "Local Var", lc.variable.line));
             }
             walk(lc.iterable);
-
             walk(lc.element);
             if (lc.condition != null) walk(lc.condition);
             currentScope = parentScope;

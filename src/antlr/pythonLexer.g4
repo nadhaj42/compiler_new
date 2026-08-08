@@ -27,21 +27,32 @@ lexer grammar pythonLexer;
         return tokens.isEmpty() ? next : tokens.poll();
     }
 
-    private void handleNewline() {
-        if (opened > 0) return;
-        int spaces = 0;
-        while (_input.LA(spaces + 1) == ' ') { spaces++; }
-        int currentIndent = indents.isEmpty() ? 0 : indents.peek();
-        if (spaces > currentIndent) {
-            indents.push(spaces);
-            emit(new CommonToken(INDENT, "INDENT"));
-        } else if (spaces < currentIndent) {
-            while (!indents.isEmpty() && spaces < indents.peek()) {
-                indents.pop();
-                emit(new CommonToken(DEDENT, "DEDENT"));
-            }
-        }
-    }
+   private void handleNewline() {
+       if (opened > 0) return;
+
+       int spaces = 0;
+       // نعتبر التاب يساوي مسافة وحدة هون (تبسيط كافي لمعظم الحالات، المهم إنو ما ينحسب صفر غلط)
+       while (_input.LA(spaces + 1) == ' ' || _input.LA(spaces + 1) == '\t') { spaces++; }
+
+       int lookahead = _input.LA(spaces + 1);
+       boolean isBlankOrCommentOnlyLine =
+               lookahead == '\r' || lookahead == '\n' || lookahead == -1 || lookahead == '#';
+
+       if (isBlankOrCommentOnlyLine) {
+           return;
+       }
+
+       int currentIndent = indents.isEmpty() ? 0 : indents.peek();
+       if (spaces > currentIndent) {
+           indents.push(spaces);
+           emit(new CommonToken(INDENT, "INDENT"));
+       } else if (spaces < currentIndent) {
+           while (!indents.isEmpty() && spaces < indents.peek()) {
+               indents.pop();
+               emit(new CommonToken(DEDENT, "DEDENT"));
+           }
+       }
+   }
 }
 
 DEF     : 'def';

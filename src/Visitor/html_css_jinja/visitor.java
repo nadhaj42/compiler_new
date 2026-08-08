@@ -382,8 +382,6 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return new HtmlElementNode(tagName, attrs, null, line);
     }
 
-    // --- tagName / voidTagName (نرجعهم كـ Identifier مؤقت، المهم getText) ---
-    // هذه الـ visitors ما بتُستدعى مباشرة من بره لأننا نستخدم getText() في الـ parent
 
     @Override public Node visitTagBr(jinjaParser.TagBrContext ctx)           { return new Identifier(ctx.getText(), ctx.getStart().getLine()); }
     @Override public Node visitTagHr(jinjaParser.TagHrContext ctx)           { return new Identifier(ctx.getText(), ctx.getStart().getLine()); }
@@ -459,7 +457,6 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return new StringAttribute(ctx.HTML_ATTRIBUTE_VALUE_UNQUOTED().getText(), ctx.getStart().getLine());
     }
 
-    // 6. STYLE BLOCK & CSS
 
 
     @Override
@@ -500,7 +497,7 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
 
     @Override
     public Node visitStandardCssRule(jinjaParser.StandardCssRuleContext ctx) {
-        String selector = ctx.cssSelectorList().getText();
+        String selector = buildTextWithSpacing(ctx.cssSelectorList());
         List<CssDeclaration> declarations = new ArrayList<>();
 
         if (ctx.cssDeclarationList() != null) {
@@ -525,11 +522,28 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return new Identifier(ctx.getText(), ctx.getStart().getLine());
     }
 
+
     @Override
     public Node visitCssSelectorWrapper(jinjaParser.CssSelectorWrapperContext ctx) {
-        return new Identifier(ctx.getText(), ctx.getStart().getLine());
-    }
+        StringBuilder sb = new StringBuilder();
+        int prevStopIndex = -1;
 
+        for (org.antlr.v4.runtime.tree.ParseTree child : ctx.children) {
+            if (child instanceof org.antlr.v4.runtime.tree.TerminalNode) {
+                org.antlr.v4.runtime.tree.TerminalNode t =
+                        (org.antlr.v4.runtime.tree.TerminalNode) child;
+                int start = t.getSymbol().getStartIndex();
+
+                if (prevStopIndex != -1 && start > prevStopIndex + 1) {
+                    sb.append(" ");
+                }
+                sb.append(t.getText());
+                prevStopIndex = t.getSymbol().getStopIndex();
+            }
+        }
+
+        return new Identifier(sb.toString(), ctx.getStart().getLine());
+    }
     @Override
     public Node visitCssDeclarationListRule(jinjaParser.CssDeclarationListRuleContext ctx) {
         return null;
@@ -570,9 +584,12 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return new CssLiteral(ctx.CSS_ID_SELECTOR().getText(), ctx.getStart().getLine());
     }
 
+
     @Override
     public Node visitCssValuePseudoClass(jinjaParser.CssValuePseudoClassContext ctx) {
-        return new CssLiteral(ctx.CSS_PSEUDO_CLASS().getText(), ctx.getStart().getLine());
+        String raw = ctx.CSS_PSEUDO_CLASS().getText(); // مثلاً ":flex"
+        String cleaned = raw.startsWith(":") ? raw.substring(1) : raw;
+        return new CssLiteral(cleaned, ctx.getStart().getLine());
     }
 
     @Override
@@ -587,7 +604,6 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
         return null;
     }
 
-    //HELPER METHODS
 
 
     private List<HtmlAttributeNode> buildAttributes(List<jinjaParser.AttributeContext> attrCtxs) {
@@ -630,16 +646,63 @@ public class visitor extends jinjaParserBaseVisitor<Node> {
     }
 
 
+
     private List<CssValueNode> buildCssValues(jinjaParser.CssValueListContext ctx) {
         List<CssValueNode> values = new ArrayList<>();
-        if (ctx == null) return values;
+        if (ctx == null || ctx.children == null) return values;
 
-        for (jinjaParser.CssValueContext valCtx : ctx.getRuleContexts(jinjaParser.CssValueContext.class)) {
-            Node node = visit(valCtx);
+        boolean commaSeen = false;
+
+        for (org.antlr.v4.runtime.tree.ParseTree child : ctx.children) {
+
+            // فاصلة CSS_COMMA -> علّمي إنو القيمة الجاية مسبوقة بفاصلة
+            if (child instanceof org.antlr.v4.runtime.tree.TerminalNode) {
+                org.antlr.v4.runtime.tree.TerminalNode t =
+                        (org.antlr.v4.runtime.tree.TerminalNode) child;
+                if (t.getSymbol().getType() == jinjaParser.CSS_COMMA) {
+                    commaSeen = true;
+                }
+                continue;
+            }
+
+            // خلاف هيك، هاد لازم يكون cssValue context
+            Node node = visit(child);
             if (node instanceof CssValueNode) {
-                values.add((CssValueNode) node);
+                CssValueNode valueNode = (CssValueNode) node;
+                valueNode.precededByComma = commaSeen;
+                values.add(valueNode);
+                commaSeen = false; // reset بعد كل قيمة
             }
         }
+
         return values;
+    }
+
+
+    private void collectTokens(org.antlr.v4.runtime.tree.ParseTree tree,
+                               List<org.antlr.v4.runtime.Token> tokens) {
+        if (tree instanceof org.antlr.v4.runtime.tree.TerminalNode) {
+            tokens.add(((org.antlr.v4.runtime.tree.TerminalNode) tree).getSymbol());
+        } else {
+            for (int i = 0; i < tree.getChildCount(); i++) {
+                collectTokens(tree.getChild(i), tokens);
+            }
+        }
+    }
+
+    private String buildTextWithSpacing(org.antlr.v4.runtime.tree.ParseTree tree) {
+        List<org.antlr.v4.runtime.Token> tokens = new ArrayList<>();
+        collectTokens(tree, tokens);
+
+        StringBuilder sb = new StringBuilder();
+        int prevStopIndex = -1;
+        for (org.antlr.v4.runtime.Token t : tokens) {
+            if (prevStopIndex != -1 && t.getStartIndex() > prevStopIndex + 1) {
+                sb.append(" ");
+            }
+            sb.append(t.getText());
+            prevStopIndex = t.getStopIndex();
+        }
+        return sb.toString();
     }
 }
